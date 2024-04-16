@@ -1,0 +1,161 @@
+C51 COMPILER V9.00   KEY                                                                   04/15/2024 19:40:39 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN .\Output\KEY.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\KEY\KEY.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Applicat
+                    -ion;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..\App
+                    -lication\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK;..\
+                    -..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\KEY.lst) OBJECT
+                    -(.\Output\KEY.obj)
+
+line level    source
+
+   1          /*******************************************************************************/
+   2          #include "define.h"
+   3          //===============================================================================
+   4          void KEY_TIG_INIT(void);
+   5          //===============================================================================
+   6          /******全局变量*********/
+   7          u32 KEY_TEMP;
+   8          u8  KEY_CNT;
+   9          bit F_Power;
+  10          bit F_FilterSet;
+  11          unsigned char Filter_SetMode;
+  12          unsigned char xSCE_SetWait_CNT;
+  13          /******局部变量*********/
+  14          ux32 OLD_KEY = 0;
+  15          unsigned  int xdata KEY_LONG_CNT1 = 0;
+  16          unsigned  int xdata KEY_LONG_CNT2 = 0;
+  17          bit KEY_LONG = 0;
+  18          
+  19          void ParamKeyInit(void)
+  20          {
+  21   1          KEY_TEMP  = 0;
+  22   1          KEY_CNT = 0;
+  23   1          F_Power = 1;  //电源键初始化为1
+  24   1          xSCE_SetWait_CNT = 0;
+  25   1          F_FilterSet = 0;
+  26   1          Filter_SetMode = 1;
+  27   1      }
+  28          
+  29          
+  30          
+  31          //===============================================================================
+  32          void KEY_Handle(u32 key_flag)  //10ms扫描一次
+  33          {
+  34   1          if((key_flag != OLD_KEY) && (KEY_CNT >3))   //短按
+  35   1          {   
+  36   2              if((OLD_KEY == KEY_L)&&(KEY_LONG == 0))      //左键滤芯复位键 
+  37   2              {
+  38   3                  KEY_LONG = 1;
+  39   3                  
+  40   3                  if(F_FilterSet == 1)
+  41   3                   {
+  42   4                      speek_dan0(20);
+  43   4                      if(++Filter_SetMode>=5)
+  44   4                      {
+  45   5                          Filter_SetMode = 1;
+  46   5                      }
+  47   4                      xSCE_SetWait_CNT = 0;   //清掉退出滤芯15s的等待时间
+  48   4                   }
+  49   3              }
+  50   2              else if((OLD_KEY == KEY_R)&&(KEY_LONG == 0)) //右键冲洗键 、电源键
+  51   2              {
+C51 COMPILER V9.00   KEY                                                                   04/15/2024 19:40:39 PAGE 2   
+
+  52   3                  speek_dan0(20); 
+  53   3                  KEY_LONG = 1;
+  54   3                  
+  55   3                  if(F_Power == 0)
+  56   3                  {
+  57   4                      F_Power = 1;
+  58   4                      F_WashFirst_10S = 1;
+  59   4                  }
+  60   3                  else
+  61   3                  {
+  62   4                      if(F_Wash == 1)
+  63   4                      {
+  64   5                          CLEAN_TIME_SEC = 0;
+  65   5                          F_Wash = 0;
+  66   5                      }
+  67   4                      else
+  68   4                      {
+  69   5                          F_WashFirst_10S = 1;
+  70   5                      }
+  71   4                      
+  72   4                  }
+  73   3              }
+  74   2              
+  75   2              OLD_KEY = key_flag; 
+  76   2              KEY_LONG = 0;
+  77   2          }
+  78   1          else//长按
+  79   1          {
+  80   2               if(key_flag == KEY_L) //  进入滤芯复位模式
+  81   2               {      
+  82   3                   if(++KEY_LONG_CNT1>=300) // 10*300 = 3000ms = 3s
+  83   3                  { 
+  84   4                      KEY_LONG_CNT1 = 0;
+  85   4                      
+  86   4                      if(F_FilterSet==0)
+  87   4                      {
+  88   5                          speek_dan0(20);
+  89   5                          KEY_LONG = 1;
+  90   5                          
+  91   5                          F_FilterSet=1 ; 
+  92   5                          Filter_SetMode=1 ;                                                                          
+  93   5                      }
+  94   4                      else
+  95   4                      {
+  96   5                          speek_dan0(20);
+  97   5                          KEY_LONG = 1;
+  98   5                          
+  99   5                          F_FilterSet=0 ; 
+ 100   5                          Filter_SetMode=0;                                                                           
+ 101   5                      }
+ 102   4                  }    
+ 103   3               }
+ 104   2               else
+ 105   2               {
+ 106   3                  KEY_LONG_CNT1 = 0;
+ 107   3               }
+ 108   2               
+ 109   2               if(key_flag == KEY_R) //  进入冲洗模式、关机状态
+ 110   2               {      
+ 111   3                   if(++KEY_LONG_CNT2>=300) // 110*300 = 3000ms = 3s
+ 112   3                  { 
+ 113   4                      KEY_LONG_CNT2 = 0;
+C51 COMPILER V9.00   KEY                                                                   04/15/2024 19:40:39 PAGE 3   
+
+ 114   4                      
+ 115   4                      if(F_Power == 1)
+ 116   4                      {
+ 117   5                          speek_dan0(20); 
+ 118   5                          F_Power = 0;
+ 119   5                          KEY_LONG = 1;
+ 120   5                      }
+ 121   4                  }    
+ 122   3               }
+ 123   2               else
+ 124   2               {
+ 125   3                  KEY_LONG_CNT2 = 0;
+ 126   3               }
+ 127   2           }
+ 128   1              
+ 129   1      }
+ 130          /*********************************END OF FILE************************************/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    352    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      8    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      7       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

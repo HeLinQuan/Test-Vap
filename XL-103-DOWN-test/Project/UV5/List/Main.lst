@@ -1,0 +1,102 @@
+C51 COMPILER V9.00   MAIN                                                                  04/15/2024 19:40:36 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Output\Main.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\User\Main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Application;..\..\
+                    -User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..\Application\T
+                    -M1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK;..\..\Applica
+                    -tion\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\Main.lst) OBJECT(.\Output
+                    -\Main.obj)
+
+line level    source
+
+   1          /******************* (C) COPYRIGHT 2009~2023 holychip **************************
+   2          * File Name          : Main.c
+   3          * Author             : HA Team
+   4          * Version            : V3.0.1.3
+   5          * Date               : 2023/04/24
+   6          ********************************************************************************/
+   7          
+   8          //================================================================================
+   9          #define  ALLOCATE_EXTERN
+  10          #include "define.h"
+  11          //================================================================================
+  12          
+  13          void main()
+  14          {
+  15   1              SystemInit();                                           //时钟初始化函数(默认Fosc=32M，Fcpu=16M)
+  16   1              IO_Init();                                                      //所有CTK口必须设置为模拟输入口
+  17   1          TM1652_init();
+  18   1          
+  19   1          EEPROM_INIT();
+  20   1          ParamInit();                        //全局变量初始化函数
+  21   1          TIMER0_Init();
+  22   1              TIMER1_Init();
+  23   1          
+  24   1          
+  25   1          AD_INIT() ;
+  26   1          
+  27   1              EA = 1;                                                         //CTK初始化之前必须打开EA
+  28   1              CTK_Init();                                                     //CTK初始化中未清狗，建议将WDT初始化放到CTK初始化之后   
+  29   1              
+  30   1          
+  31   1          WDT_INIT();
+  32   1          
+  33   1          speek_dan0(30);
+  34   1          
+  35   1      #if TouchUartDebugLib_SW
+                      CTK_TouchUartDebug_Init();                      //触摸串口调试初始化
+              #endif
+  38   1      
+  39   1              UartInit();
+  40   1          
+  41   1              while(1)
+  42   1              {
+  43   2                      if(OneCycleScanDone)
+  44   2                      {
+  45   3                              Touch_Signal_Handle();
+  46   3                              OneCycleScanDone = 0;
+  47   3      
+  48   3      #if TouchUartDebugLib_SW
+                      ECTK = 0;                                                       //触摸串口调试发送数据前，必需现关ECTK，后再打开
+                      CTK_TouchUartDebug();
+                      ECTK = 1;
+C51 COMPILER V9.00   MAIN                                                                  04/15/2024 19:40:36 PAGE 2   
+
+              #endif
+  53   3                  
+  54   3                  if((TouchKeyFlag)!= KEY_TEMP)
+  55   3                  {
+  56   4                          KEY_TEMP = TouchKeyFlag;
+  57   4                          KEY_CNT = 0;
+  58   4                  }
+  59   3                  else
+  60   3                  {
+  61   4                          KEY_CNT++;
+  62   4                          if(KEY_CNT>=10) KEY_CNT = 10 ; 
+  63   4                  }
+  64   3                      }
+  65   2              CLR_WDT;
+  66   2                      Fun_Handle(); 
+  67   2      //              if(TouchKeyFlag == TK0){;}              //判断单按键有效        
+  68   2      //              if(TouchKeyFlag == TK2|TK3){;}  //判断多个按键同时有效
+  69   2              }
+  70   1      }
+  71          
+  72          /*********************************END OF FILE************************************/
+  73          /******************* (C) COPYRIGHT 2009~2023 holychip ***************************/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    122    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

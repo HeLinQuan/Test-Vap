@@ -1,0 +1,530 @@
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE FUN_HANDLE
+OBJECT MODULE PLACED IN .\Output\Fun_Handle.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\Fun_Handle\Fun_Handle.c OPTIMIZE(8,SPEED) BROWSE INCDIR(
+                    -..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DIS
+                    -PLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Applicati
+                    -on\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\F
+                    -un_Handle.lst) OBJECT(.\Output\Fun_Handle.obj)
+
+line level    source
+
+   1          #include "define.h"
+   2          
+   3          /*******全局变量*******/
+   4          bit F_WashFirst_10S;
+   5          bit F_ZHISHUICHAOSHI;
+   6          bit F_QUESHUI;
+   7          bit F_LOUSHUI;
+   8          bit F_WaterProduction;
+   9          bit F_Wash;
+  10          bit F_SHUIBEN;
+  11          bit F_CXF;
+  12          
+  13          unsigned char xdata CLEAN_TIME_SEC;
+  14          unsigned char xdata F_FilterOutTime;
+  15          
+  16          
+  17          /*******局部变量*******/
+  18          unsigned char DIS_CNT = 0;
+  19          bit F_WashAccumulateFull_4h = 0;
+  20          bit F_WashAccumulateWork_10min = 0;
+  21          bit F_WashFull = 0;
+  22          unsigned char xdata F_WaterFull_CNT = 0;
+  23          unsigned char xdata F_WaterProduction_CNT1 = 0;
+  24          unsigned char xdata F_WaterProduction_CNT2 = 0;
+  25          unsigned char xdata xSEC_FilterOutTime_CNT = 0;
+  26          bit  F_yali_low = 1 , F_yali_high = 0; 
+  27          unsigned int low_count = 1000, high_count = 0; 
+  28          unsigned int Tim_cnt=0;
+  29          bit F_WashFull_Flag = 1;
+  30          unsigned char TDS_CNT = 0 ;
+  31          unsigned int TDS_CHECK_CNT = 0;
+  32          static void ParamHandleInit(void)
+  33          {
+  34   1          F_WashFirst_10S = 1;  //机器上电冲洗标志位置 1
+  35   1          CLEAN_TIME_SEC = 0;
+  36   1          
+  37   1          F_WaterProduction = 0;  //制水标志
+  38   1          F_ZHISHUICHAOSHI = 0;  //制水超时标志位置0
+  39   1          F_QUESHUI = 0;         //缺水标志位置0
+  40   1          F_LOUSHUI = 0;        //漏水标志位置0
+  41   1          
+  42   1          F_Wash = 1;  //冲洗标志位置0
+  43   1          
+  44   1          F_SHUIBEN = 0; //水泵标志位置0
+  45   1          F_CXF = 0;   //冲洗阀标志位置0
+  46   1          
+  47   1          F_FilterOutTime = 0;  //滤芯到期标志位
+  48   1      }
+  49          
+  50          /****变量初始化****/
+  51          void ParamInit(void)
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 2   
+
+  52          { 
+  53   1            ParamTimtInit();
+  54   1            ParamHandleInit();
+  55   1            ParamKeyInit(); 
+  56   1      //    ParamAdworkInit();
+  57   1      }
+  58          /*************************************************************************
+  59          压力开关检测  10ms扫描一次  
+  60          *************************************************************************/
+  61          void yali_sw_check (void)    //浮球：接通为0  断开为1
+  62          {
+  63   1          if(yali_low_sw==0)    //有水 
+  64   1          {  
+  65   2              low_count+=50 ;
+  66   2              if(low_count>=1000)   //10秒 
+  67   2              {
+  68   3                  low_count = 1000 ;                                                   
+  69   3                  F_yali_low = 1 ;   //低压开关闭合 
+  70   3              }
+  71   2          }
+  72   1              else                //无水 
+  73   1              {
+  74   2              if(--low_count<=1)
+  75   2              {
+  76   3                  low_count = 1 ;
+  77   3                  F_yali_low = 0 ;     //低压开关断开  缺水  
+  78   3              }
+  79   2               }
+  80   1              
+  81   1           
+  82   1          if(yali_high_sw==0)   //高压开关 常闭开关   ，为1 是 断开  0为闭合
+  83   1          {
+  84   2              if(++high_count>=50)
+  85   2              {
+  86   3                  high_count = 50 ;
+  87   3                  F_yali_high = 0 ;  //高压开关闭合
+  88   3              }
+  89   2          }
+  90   1          else   //水满
+  91   1          {
+  92   2              if(--high_count<=1)
+  93   2              {
+  94   3                      high_count = 1 ;
+  95   3                      F_yali_high = 1 ;   //高压开关断开 
+  96   3              }
+  97   2          }
+  98   1      }
+  99          
+ 100          void RO_SIGN_chuli(void)
+ 101          {
+ 102   1              if(F_yali_low==0) //缺水
+ 103   1              {  
+ 104   2                      if(F_QUESHUI==0)
+ 105   2                      {
+ 106   3                              speek_duo(150,50,10);
+ 107   3                      }
+ 108   2                      F_QUESHUI = 1 ; //缺水 
+ 109   2              }
+ 110   1              else 
+ 111   1              {
+ 112   2                      F_QUESHUI = 0 ;   //不缺水               
+ 113   2                      if(F_yali_high==0) 
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 3   
+
+ 114   2                      { 
+ 115   3                              F_WaterProduction = 1 ; //制水工作 
+ 116   3                  if(F_WashFull_Flag == 0)
+ 117   3                  {
+ 118   4                      F_WashFull_Flag = 1;
+ 119   4                  }
+ 120   3                      }
+ 121   2               else
+ 122   2                      {
+ 123   3                              F_WaterProduction = 0 ; //制水完成 ，水满
+ 124   3                  if(F_WashFull_Flag == 1)
+ 125   3                  {
+ 126   4                      F_WashFull_Flag = 0;
+ 127   4                      F_WashFull = 1;
+ 128   4                  }
+ 129   3                      }                                         
+ 130   2              }                        
+ 131   1      }
+ 132          /**************************************************************************
+ 133          RO系统制水工作  //100MS 扫描一次 
+ 134          **************************************************************************/
+ 135          void RO_SYS_WORK(void)
+ 136          {  
+ 137   1              if((F_ZHISHUICHAOSHI==1)||(F_QUESHUI == 1)||(F_LOUSHUI == 1)||(F_Power == 0)) //出错后关闭阀门、泵
+ 138   1               { 
+ 139   2                  F_SHUIBEN = 0;
+ 140   2                  F_CXF = 0;
+ 141   2               }
+ 142   1               else
+ 143   1               {
+ 144   2                        if(F_Wash == 1)  //冲洗
+ 145   2                        {
+ 146   3                                       if(CLEAN_TIME_SEC>0)
+ 147   3                                       {
+ 148   4                                                      F_SHUIBEN = 1;
+ 149   4                              F_CXF = 1;  
+ 150   4                                       }
+ 151   3                                       else 
+ 152   3                                       {
+ 153   4                                                       F_Wash = 0 ; 
+ 154   4                               F_SHUIBEN = 0;
+ 155   4                               F_CXF = 0; 
+ 156   4                                       }      
+ 157   3                        }
+ 158   2                else
+ 159   2                {
+ 160   3                      if(F_WaterProduction == 1)   //制水
+ 161   3                      {
+ 162   4                          F_SHUIBEN = 1;
+ 163   4                          F_CXF = 0;
+ 164   4                      }
+ 165   3                      else                        //水满
+ 166   3                      { 
+ 167   4                          F_SHUIBEN = 0;
+ 168   4                          F_CXF = 0;
+ 169   4                      }
+ 170   3                }
+ 171   2            }
+ 172   1      }
+ 173          
+ 174          /**********************************************************
+ 175          冲洗模式  10ms 
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 4   
+
+ 176          ***********************************************************/
+ 177          void RO_CLEAN_check(void)
+ 178          {
+ 179   1         if(F_WashFirst_10S==1)  //上电冲洗30s
+ 180   1          {
+ 181   2              CLEAN_TIME_SEC = 30;  
+ 182   2              F_Wash = 1 ; 
+ 183   2              F_WashFirst_10S = 0;  //
+ 184   2          }
+ 185   1          else if(F_WashAccumulateFull_4h == 1)   //机器处于水满状态累计4h，冲洗20s
+ 186   1          {
+ 187   2              CLEAN_TIME_SEC = 20;  
+ 188   2              F_Wash =1 ;
+ 189   2              F_WashAccumulateFull_4h = 0;
+ 190   2          }
+ 191   1          else if((F_WashAccumulateWork_10min == 1)&&(F_WaterProduction == 1))   //机器累计制水10min，水满后冲洗
+             -10s
+ 192   1          {
+ 193   2              CLEAN_TIME_SEC = 10;  
+ 194   2              F_Wash =1 ; 
+ 195   2              F_WashAccumulateWork_10min = 0;
+ 196   2          }
+ 197   1          else if(F_WashFull == 1)    //水满冲洗 10s
+ 198   1          {
+ 199   2              CLEAN_TIME_SEC = 10;  
+ 200   2              F_Wash =1 ; 
+ 201   2              F_WashFull = 0;
+ 202   2          }
+ 203   1      }
+ 204          
+ 205          /**********************************************************
+ 206          阀门、泵检测函数  100ms 
+ 207          ***********************************************************/
+ 208          void WorkPro(void)
+ 209          {        
+ 210   1          if(F_SHUIBEN == 1)
+ 211   1          {
+ 212   2              SHUIBEN_ON
+ 213   2          }
+ 214   1          else
+ 215   1          {
+ 216   2              SHUIBEN_OFF
+ 217   2          }
+ 218   1          
+ 219   1          if(F_CXF == 1)
+ 220   1          {
+ 221   2              CXF_ON
+ 222   2          }
+ 223   1          else
+ 224   1          {
+ 225   2              CXF_OFF
+ 226   2          }
+ 227   1      }
+ 228          
+ 229          
+ 230          /*********************************************
+ 231          TDS 检测   1ms 扫描 1次 
+ 232          //  TDS 检测 
+ 233          **********************************************/
+ 234          void TDS_CHECK(void)
+ 235          {
+ 236   1          if(F_WaterProduction==1)  //制水标志                        
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 5   
+
+ 237   1          {
+ 238   2              if(++TDS_CHECK_CNT>=15000)
+ 239   2              {
+ 240   3                  TDS_CHECK_CNT = 15000;
+ 241   3                  TDS_YS_read() ;   //读原水TDS                
+ 242   3                  TDS_RO_read() ;   //读取纯水 TDS 
+ 243   3              }
+ 244   2          }
+ 245   1          else
+ 246   1          { 
+ 247   2              TDS_YS_STOP;     //IO停止 
+ 248   2              TDS_RO_STOP;     //IO停止
+ 249   2              TDS_CHECK_CNT = 0;
+ 250   2          }   
+ 251   1      }
+ 252          
+ 253          static void Scan_1ms(void)
+ 254          {
+ 255   1          if(F_1MS==1)
+ 256   1              {
+ 257   2              F_1MS = 0;
+ 258   2              SingReceive();
+ 259   2              TDS_CHECK();
+ 260   2          }
+ 261   1      }
+ 262          
+ 263          static void Scan_10ms(void)
+ 264          {
+ 265   1          if(F_10MS==1)
+ 266   1                {
+ 267   2                    F_10MS = 0; 
+ 268   2                speek_manage0();
+ 269   2                KEY_Handle(KEY_TEMP);  //按键函数调用
+ 270   2                yali_sw_check();
+ 271   2                
+ 272   2                Check_Leak();   //漏水检测
+ 273   2                RO_SYS_WORK();
+ 274   2                }
+ 275   1      }
+ 276          
+ 277          static void Scan_100ms(void)
+ 278          {
+ 279   1          if(F_100MS == 1)
+ 280   1          {
+ 281   2             F_100MS =0;
+ 282   2              
+ 283   2              if(++DIS_CNT>=2)
+ 284   2              {
+ 285   3                  DIS_CNT = 0;
+ 286   3                  
+ 287   3                  DIS_MANAGE();    /*显示函数调用*/
+ 288   3                              if(buz_on==0)
+ 289   3                  {
+ 290   4                      display();      
+ 291   4                  }
+ 292   3              }
+ 293   2              
+ 294   2              WorkPro();
+ 295   2              RO_CLEAN_check();
+ 296   2              RO_SIGN_chuli();
+ 297   2          }
+ 298   1      }
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 6   
+
+ 299          
+ 300          static void Scan_500ms(void)
+ 301          {
+ 302   1          if(F_500MS == 1)
+ 303   1          {
+ 304   2             F_500MS = 0;
+ 305   2             
+ 306   2      //        if(F_WaterProduction == 1)
+ 307   2      //        {
+ 308   2      //        
+ 309   2      //        }
+ 310   2              TDS_RO_SUM += TDS_RO ;
+ 311   2              TDS_YS_SUM += TDS_YS ;
+ 312   2              if(++TDS_CNT>=10)
+ 313   2              {
+ 314   3                  TDS_CNT = 0 ; 
+ 315   3                  TDS_RO_avg = TDS_RO_SUM/10 ;
+ 316   3                  TDS_YS_avg = TDS_YS_SUM/10 ;
+ 317   3                  TDS_RO_SUM = 0 ;
+ 318   3                  TDS_YS_SUM = 0 ;
+ 319   3              }
+ 320   2          }
+ 321   1      }
+ 322          
+ 323          static void Scan_xSEC(void)
+ 324          {
+ 325   1          if(F_1SEC == 1)
+ 326   1          {
+ 327   2              F_1SEC = 0;
+ 328   2               DIS_TO_MAIN_SEND();
+ 329   2              if(CLEAN_TIME_SEC>0)  //冲洗时间自减
+ 330   2              {
+ 331   3                   CLEAN_TIME_SEC--;
+ 332   3              }
+ 333   2              else
+ 334   2              {
+ 335   3                   CLEAN_TIME_SEC=0 ;   
+ 336   3              }
+ 337   2              
+ 338   2              if(++xSEC_FilterOutTime_CNT>=10)  //每10s扫描一次 是否有滤芯到期
+ 339   2              {
+ 340   3                  xSEC_FilterOutTime_CNT = 0;
+ 341   3                  if(work1_hour>=SET_WORK1_HOUR)//第一组滤芯
+ 342   3                  {
+ 343   4                      F_FilterOutTime = 1;
+ 344   4                  }
+ 345   3                  if(work2_hour>=SET_WORK2_HOUR)//第二组滤芯
+ 346   3                  {
+ 347   4                      F_FilterOutTime = 2;
+ 348   4                  }
+ 349   3                  if(work3_hour>=SET_WORK3_HOUR)//第一组滤芯
+ 350   3                  {
+ 351   4                      F_FilterOutTime = 3;
+ 352   4                  }
+ 353   3                  if(work4_hour>=SET_WORK4_HOUR)//第二组滤芯
+ 354   3                  {
+ 355   4                      F_FilterOutTime = 4;
+ 356   4                  }
+ 357   3                  
+ 358   3                  if(F_FilterOutTime != 0)
+ 359   3                  {
+ 360   4                      if(F_BEEP2 == 0)
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 7   
+
+ 361   4                      {
+ 362   5                          F_BEEP2 = 1;
+ 363   5                          speek_duo(150,50,10);
+ 364   5                      }
+ 365   4                  }
+ 366   3                  else
+ 367   3                  {
+ 368   4                      F_BEEP2 = 0;
+ 369   4                  }
+ 370   3              }
+ 371   2              
+ 372   2              if(F_FilterSet == 1)
+ 373   2              {
+ 374   3                  if(++xSCE_SetWait_CNT>=15) //15s  进入滤芯复位模式时，如果等待15s无操作，自动退出
+ 375   3                  {
+ 376   4                      F_FilterSet = 0;
+ 377   4                  }
+ 378   3              }
+ 379   2              else
+ 380   2              {
+ 381   3                  xSCE_SetWait_CNT = 0;
+ 382   3              }
+ 383   2          }
+ 384   1      }
+ 385          
+ 386          static void Scan_xMIN(void)
+ 387          {
+ 388   1          if(F_1MIN == 1)
+ 389   1          {
+ 390   2              F_1MIN = 0;
+ 391   2              
+ 392   2              if(F_WaterProduction == 1)
+ 393   2              {
+ 394   3                  if(++F_WaterProduction_CNT1>=10)
+ 395   3                  {
+ 396   4                      F_WaterProduction_CNT1 = 0;
+ 397   4                      F_WashAccumulateWork_10min = 1;
+ 398   4                  }
+ 399   3                  
+ 400   3                  if(++F_WaterProduction_CNT2>=120)
+ 401   3                  {
+ 402   4                      F_WaterProduction_CNT2 = 0;
+ 403   4                      F_ZHISHUICHAOSHI = 1;
+ 404   4                      speek_duo(150,50,5);
+ 405   4                  }
+ 406   3                  
+ 407   3                  if(++work_10min>=10)  //每10min存储1次滤芯寿命时间
+ 408   3                  {
+ 409   4                      work_10min = 0;
+ 410   4                      if(++work_10min>=6)
+ 411   4                      {
+ 412   5                          work_10min = 0; 
+ 413   5                          work1_hour++ ;
+ 414   5                          work2_hour++ ; 
+ 415   5                          work3_hour++ ;
+ 416   5                          work4_hour++ ;
+ 417   5                      } 
+ 418   4                      EEPROM_WRITE() ; 
+ 419   4                  }
+ 420   3                      
+ 421   3              }
+ 422   2              else
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 8   
+
+ 423   2              {
+ 424   3                  F_WaterProduction_CNT2 = 0;
+ 425   3              }
+ 426   2          }
+ 427   1      }
+ 428          
+ 429          
+ 430          static void Scan_xHour(void)
+ 431          {
+ 432   1          if(F_1HOUR == 1)
+ 433   1          {
+ 434   2              F_1HOUR = 0;
+ 435   2              if(F_WaterProduction == 0)
+ 436   2              {
+ 437   3                  if(++F_WaterFull_CNT>=4)
+ 438   3                  {
+ 439   4                      F_WaterFull_CNT = 0;
+ 440   4                      F_WashAccumulateFull_4h = 1;
+ 441   4                  }
+ 442   3              }
+ 443   2              
+ 444   2          }
+ 445   1      }
+ 446          
+ 447          
+ 448          void Check_Leak(void)//漏水检测 10ms调用一次
+ 449          {
+ 450   1          
+ 451   1             if(P0_3 == 0)
+ 452   1             {
+ 453   2                 if(++Tim_cnt>=500)
+ 454   2                  {
+ 455   3                      Tim_cnt=500;
+ 456   3                      F_LOUSHUI=1;
+ 457   3                      
+ 458   3                      if(F_BEEP1 == 0)
+ 459   3                      {
+ 460   4                          F_BEEP1 = 1;
+ 461   4                          speek_duo(150,50,5);
+ 462   4                      }
+ 463   3      
+ 464   3                  }
+ 465   2             }
+ 466   1             else
+ 467   1                      {
+ 468   2                              Tim_cnt=0;
+ 469   2                  F_BEEP1 = 0;
+ 470   2                      }
+ 471   1      }
+ 472          //===============================================================================
+ 473          void Fun_Handle(void)
+ 474          {
+ 475   1          CLR_WDT;
+ 476   1          TIMER_SCAN();  //定时器基数，分出 1ms、10ms、100ms、500ms、1s、1min、1h
+ 477   1          JudgeOneStringEnd();
+ 478   1          
+ 479   1          Scan_1ms();
+ 480   1          Scan_10ms();
+ 481   1          Scan_100ms();
+ 482   1          Scan_500ms();
+ 483   1          Scan_xSEC();
+ 484   1          Scan_xMIN();
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 9   
+
+ 485   1          Scan_xHour();
+ 486   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    934    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      6    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     10    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =     14    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

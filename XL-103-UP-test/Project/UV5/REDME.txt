@@ -1,0 +1,21 @@
+一、串口：
+1.串口中断接收数据
+void UART1_Rpt(void) interrupt UART1_VECTOR
+{
+	if(SCON&0x01)						//判断接收中断标志位
+	{
+			SCON &=~ 0x01;					//清除接收中断标志位
+			Receiveflag = 1;
+			Receietime = 0;
+			ReceivebeBuffer[Receivenum] = SBUF;
+			Receivenum++;
+	}	
+}
+(1)ReceivebeBuffer 是一个全局数组
+(2)
+(3)
+
+
+
+
+

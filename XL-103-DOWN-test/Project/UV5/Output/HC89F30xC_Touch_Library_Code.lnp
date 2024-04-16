@@ -1,0 +1,24 @@
+".\Output\STARTUP.obj",
+".\Output\Main.obj",
+".\Output\HC89F30xC_GeneralKey_Touch_Auxiliary.obj",
+".\Output\HC89F30xC_GeneralKey_Touch_Lib_CFG.obj",
+"..\..\Libraries\HC89F30xC_GeneralKey_Touch_Lib_V3.01\HC89F30xC_GeneralKey_Touch_Lib_V3.01.LIB",
+".\Output\HC89F30xC_TouchUartDebug_Lib_CFG.obj",
+"..\..\Libraries\HC89F30xC_TouchUartDebug_Lib_V2.00\HC89F30xC_TouchUartDebug_Lib_V2.00.LIB",
+".\Output\HC89F30xC_IO_INIT.obj",
+".\Output\HC89F30xC_ISR.obj",
+".\Output\HC89F30xC_PORT_MAP.obj",
+".\Output\HC89F30xC_SYS.obj",
+".\Output\Buzzer_Driver.obj",
+".\Output\display.obj",
+".\Output\TM1652.obj",
+".\Output\WDT.obj",
+".\Output\TIMER.obj",
+".\Output\E2PROM_R_W.obj",
+".\Output\AD_TDS.obj",
+".\Output\Fun_Handle.obj",
+".\Output\KEY.obj",
+".\Output\USART.obj" 
+TO ".\Output\HC89F30xC_Touch_Library_Code" 
+PRINT(".\List\HC89F30xC_Touch_Library_Code.m51") RAMSIZE(256) 
+DISABLEWARNING (16,57) 

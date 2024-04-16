@@ -1,0 +1,258 @@
+C51 COMPILER V9.00   HC89F30XC_GENERALKEY_TOUCH_AUXILIARY                                  04/15/2024 19:40:37 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE HC89F30XC_GENERALKEY_TOUCH_AUXILIARY
+OBJECT MODULE PLACED IN .\Output\HC89F30xC_GeneralKey_Touch_Auxiliary.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Libraries\HC89F30xC_GeneralKey_Touch_Lib_V3.01\HC89F30xC_GeneralKey_
+                    -Touch_Auxiliary.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buz
+                    -zer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\
+                    -TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Ap
+                    -plication\USART) DEBUG OBJECTEXTEND PRINT(.\List\HC89F30xC_GeneralKey_Touch_Auxiliary.lst) OBJECT(.\Output\HC89F30xC_Gen
+                    -eralKey_Touch_Auxiliary.obj)
+
+line level    source
+
+   1          /******************* (C) COPYRIGHT 2009~2022 holychip **************************
+   2          * File Name          : HC89F30xC_GeneralKey_Touch_Auxiliary.c
+   3          * Author             : Touch Team¤Z
+   4          * Version            : V3.0.1.1
+   5          * Date               : 2023/04/24
+   6          ********************************************************************************
+   7          
+   8          ×¢£º±¾ÎÄ¼þ²»½¨ÒéÓÃ»§×ÔÐÐÐÞ¸Ä£¡
+   9          
+  10          *******************************************************************************/
+  11          #include "HC89F30xC.h"
+  12          #include "HC89F30xC_GeneralKey_Touch_Lib_V3.01\HC89F30xC_GeneralKey_Touch_Lib.h"
+  13          #include "HC89F30xC_GeneralKey_Touch_Lib_V3.01\HC89F30xC_GeneralKey_Touch_Auxiliary.h"
+  14          #include "HC89F30xC_GeneralKey_Touch_Lib_V3.01\HC89F30xC_GeneralKey_Touch_Lib_CFG.h"
+  15          #include <string.h> 
+  16          
+  17          //===================================================================================================
+  18          extern ux16     XDATA_RawData[];                                        //ÂË²¨ºóRawData
+  19          extern ux16     XDATA_RawDataBuf[];                                     //²É¼¯ËùµÃRawData
+  20          extern sx16 XDATA_BaseLine[];                                   //Baseline
+  21          extern uc8  CODE_INTERNAL_INDEX[];                              //¶ÔÓ¦ICµÄÍ¨µÀºÅ
+  22          extern uc8  CODE_TK_CH_MAX;                                             //¶ÔÓ¦ICµÄÍ¨µÀ×ÜÊý
+  23          extern ux8      XDATA_OpenChannel[];                            //´ò¿ªµÄÍ¨µÀ
+  24          
+  25          #if HCTouchLib_MULTIBUTTON      
+              unsigned char code nuc_CombinationKeyA_a[2] = HCTouchLib_COMBINATIONKEYA;
+              unsigned char code nuc_CombinationKeyB_a[2] = HCTouchLib_COMBINATIONKEYB;
+              unsigned char code nuc_CombinationKeyC_a[2] = HCTouchLib_COMBINATIONKEYC;
+              unsigned char code nuc_CombinationKeyD_a[2] = HCTouchLib_COMBINATIONKEYD;
+              #endif  
+  31          
+  32          //===================================================================================================
+  33          #if HCTouchLib_FILTER_DEPTH     
+              ux16 XDATA_RawData_Filter[HCTouchLib_OPENED_TK_AMOUNT][HCTouchLib_FILTER_DEPTH];
+              #endif  
+  36          
+  37          
+  38          
+  39          /***************************************************************************************
+  40            * @ËµÃ÷       ¶à°´¼ü×î´ó¼°´Î´óÊý¾Ý²éÕÒ
+  41            *     @²ÎÊý   fi_ArrData_a      :´«ÈëDifferÖµ
+  42            *                     fuc_ArrDataAddr_a :´«ÈëÍ¨µÀÖµ
+  43            *                     fuc_Len:ÅÅÐòÊý×é³¤¶È
+  44            * @·µ»ØÖµ ÎÞ
+  45            * @×¢         ÎÞ
+  46          ***************************************************************************************/
+  47          #if HCTouchLib_MULTIBUTTON                                              
+              static void MultiButtonSearch(s16 fi_ArrData_a[], u8 fuc_ArrDataAddr_a[], u8 fuc_Len)
+              {
+                  s16 fi_MaxTemp;
+C51 COMPILER V9.00   HC89F30XC_GENERALKEY_TOUCH_AUXILIARY                                  04/15/2024 19:40:37 PAGE 2   
+
+                      s16 fi_SecMaxTemp;
+                      u8      fuc_MaxAddr;
+                      u8      fuc_SecMaxAddr;
+                  u8 fuc_i;
+                  for (fuc_i=0; fuc_i<fuc_Len; fuc_i++)
+                      {
+                              if(fi_MaxTemp < fi_ArrData_a[fuc_i])
+                              {
+                                      fi_SecMaxTemp = fi_MaxTemp;
+                                      fi_MaxTemp = fi_ArrData_a[fuc_i];
+                                      fuc_SecMaxAddr = fuc_MaxAddr;
+                                      fuc_MaxAddr = fuc_ArrDataAddr_a[fuc_i];
+                              }
+                              else if(fi_SecMaxTemp < fi_ArrData_a[fuc_i])
+                              {
+                                      fi_SecMaxTemp = fi_ArrData_a[fuc_i];
+                                      fuc_SecMaxAddr = fuc_ArrDataAddr_a[fuc_i];
+                              }
+                      }       
+                      fuc_ArrDataAddr_a[0] = fuc_MaxAddr;
+                      fuc_ArrDataAddr_a[1] = fuc_SecMaxAddr;
+              }
+              #endif
+  74          
+  75          
+  76          
+  77          
+  78          /***************************************************************************************
+  79            * @ËµÃ÷       ×éºÏ°´¼ü´¦Àíº¯Êý
+  80            *     @²ÎÊý   ÎÞ
+  81            * @·µ»ØÖµ ÎÞ
+  82            * @×¢         ÎÞ
+  83          ***************************************************************************************/
+  84          void TouchMultibuttonHandle(void)
+  85          {
+  86   1      #if HCTouchLib_MULTIBUTTON      
+                      u8  fuc_TouchKeyFlagNum;
+                      s16 fi_MultibuttonDiffer_a[HCTouchLib_OPENED_TK_AMOUNT];
+                      u8  fuc_BubbleSortChannel_a[HCTouchLib_OPENED_TK_AMOUNT];
+                      u8  fuc_i;
+                      //¼ÆËãÍ¬Ê±ÓÐ¼¸¸öÍ¨µÀÍ¬Ê±ÓÐÐ§
+                      fuc_TouchKeyFlagNum = (TouchKeyFlag>> 0 & 0x01L)+(TouchKeyFlag>> 1 & 0x01L)+(TouchKeyFlag>> 2 & 0x01L)+(T
+             -ouchKeyFlag>> 3 & 0x01L)+\
+                                                                (TouchKeyFlag>> 4 & 0x01L)+(TouchKeyFlag>> 5 & 0x01L)+(TouchKeyFlag>> 6 & 0x01L)+(TouchKeyFlag>> 7
+             - & 0x01L)+\
+                                                                (TouchKeyFlag>> 8 & 0x01L)+(TouchKeyFlag>> 9 & 0x01L)+(TouchKeyFlag>>10 & 0x01L)+(TouchKeyFlag>>11
+             - & 0x01L)+\
+                                                                (TouchKeyFlag>>12 & 0x01L)+(TouchKeyFlag>>13 & 0x01L)+(TouchKeyFlag>>14 & 0x01L)+(TouchKeyFlag>>15
+             - & 0x01L)+\
+                                                                (TouchKeyFlag>>16 & 0x01L)+(TouchKeyFlag>>17 & 0x01L)+(TouchKeyFlag>>18 & 0x01L)+(TouchKeyFlag>>19
+             - & 0x01L)+\
+                                                                (TouchKeyFlag>>20 & 0x01L);
+                      
+                      if(fuc_TouchKeyFlagNum >= 2)
+                      {
+                              for(fuc_i = 0;fuc_i < HCTouchLib_OPENED_TK_AMOUNT;fuc_i++)
+                              {
+                                      fi_MultibuttonDiffer_a[fuc_i] = (s16)(XDATA_RawData[fuc_i] - XDATA_BaseLine[fuc_i]);
+                              }       
+                              memcpy(fuc_BubbleSortChannel_a,XDATA_OpenChannel,HCTouchLib_OPENED_TK_AMOUNT);
+                              //Ã¿´ÎÅÅÐòÇ°¶¼ÖØÐÂ¸üÐÂÍ¨µÀÅÅÐò          
+                              MultiButtonSearch(fi_MultibuttonDiffer_a,fuc_BubbleSortChannel_a,HCTouchLib_OPENED_TK_AMOUNT);
+C51 COMPILER V9.00   HC89F30XC_GENERALKEY_TOUCH_AUXILIARY                                  04/15/2024 19:40:37 PAGE 3   
+
+                              //ÅÅÐò£¬½«×î´óµÄÍ¨µÀ·Åµ½fuc_BubbleSortChannel_a[0]ÖÐ£¬µÚ¶þ´óµÄÍ¨µÀ·Åµ½fuc_BubbleSortChannel_a[1]ÖÐ
+              #if   (HCTouchLib_MULTIBUTTON == 1)     
+                              TouchKeyFlag = 0x00;
+                              TouchKeyFlag |= 0x01L<<fuc_BubbleSortChannel_a[0];
+              #elif (HCTouchLib_MULTIBUTTON == 2)     
+                              if(fuc_TouchKeyFlagNum==2)
+                              {
+                                      if((((TouchKeyFlag>>nuc_CombinationKeyA_a[0]) & 0x01L) == 1)&&(((TouchKeyFlag>>nuc_CombinationKeyA_a[1]
+             -) & 0x01L) == 1)){return;}
+                                      else if((((TouchKeyFlag>>nuc_CombinationKeyB_a[0]) & 0x01L) == 1)&&(((TouchKeyFlag>>nuc_CombinationKeyB
+             -_a[1]) & 0x01L) == 1)){return;}
+                                      else if((((TouchKeyFlag>>nuc_CombinationKeyC_a[0]) & 0x01L) == 1)&&(((TouchKeyFlag>>nuc_CombinationKeyC
+             -_a[1]) & 0x01L) == 1)){return;}
+                                      else if((((TouchKeyFlag>>nuc_CombinationKeyD_a[0]) & 0x01L) == 1)&&(((TouchKeyFlag>>nuc_CombinationKeyD
+             -_a[1]) & 0x01L) == 1)){return;}                       
+                                      else
+                                      {
+                                              TouchKeyFlag = 0x00;
+                                              TouchKeyFlag |= 0x01L<<fuc_BubbleSortChannel_a[0];              
+                                      }               
+                              }//Èç¹ûÊÇÁ½¸ö°´¼üÍ¬Ê±ÉúÐ§ÇÒÎªÓÃ»§ÉèÖÃµÄ×éºÏ°´¼ü£¬Ôò°´¼üÉúÐ§¡£Èç¹ûÎª·ÇÓÃ»§ÉèÖÃµÄ×éºÏ°´¼ü£¬ÔòÐÅºÅ×îÇ¿µÄ°´¼
+             -üÉúÐ§¡£
+                              else
+                              {
+                                      TouchKeyFlag = 0x00;
+                                      TouchKeyFlag |= 0x01L<<fuc_BubbleSortChannel_a[0];                              
+                              }
+                              //Èç¹û>=3¸ö°´¼üÉúÐ§£¬ÔòÐÅºÅ×îÇ¿µÄ°´¼üÉúÐ§¡£
+              #endif          
+                      }       
+              #endif          
+ 134   1      }
+ 135          
+ 136          
+ 137          
+ 138          /***************************************************************************************
+ 139            * @ËµÃ÷       ÂË²¨Ã°ÅÝÅÅÐò
+ 140            *     @²ÎÊý   fui_ArrData_a £ºÅÅÐòÊý×é
+ 141            *                     fuc_Len£ºÅÅÐòÊý×é³¤¶È
+ 142            * @·µ»ØÖµ ÎÞ
+ 143            * @×¢         ÎÞ
+ 144          ***************************************************************************************/
+ 145          #if HCTouchLib_FILTER_DEPTH                     //Ê¹ÄÜÂË²¨»ò°´¼üÄ£Ê½
+              static void FilterBubbleSort(u16 fui_ArrData_a[], u8 fuc_Len)
+              {
+                  u16 fui_Temp = 0;
+                  u8 fuc_i = 0, fuc_j = 0;
+                  for (fuc_i=0; fuc_i<fuc_Len-1; fuc_i++)
+                      {
+                      for (fuc_j=0; fuc_j<fuc_Len-1-fuc_i; fuc_j++) 
+                              { 
+                          if (fui_ArrData_a[fuc_j] > fui_ArrData_a[fuc_j+1]) 
+                                      { 
+                              fui_Temp = fui_ArrData_a[fuc_j];
+                              fui_ArrData_a[fuc_j] = fui_ArrData_a[fuc_j+1];
+                              fui_ArrData_a[fuc_j+1] = fui_Temp;
+                          }
+                      }       
+                      }
+              }
+              #endif  
+ 164          
+C51 COMPILER V9.00   HC89F30XC_GENERALKEY_TOUCH_AUXILIARY                                  04/15/2024 19:40:37 PAGE 4   
+
+ 165          
+ 166          /***************************************************************************************
+ 167            * @ËµÃ÷       ÂË²¨º¯Êý
+ 168            *     @²ÎÊý   ÎÞ
+ 169            * @·µ»ØÖµ ÎÞ
+ 170            * @×¢         ÎÞ
+ 171          ***************************************************************************************/
+ 172          void TouchRawDataFilter(void)
+ 173          {
+ 174   1      #if HCTouchLib_FILTER_DEPTH             //Ê¹ÄÜÂË²¨                              
+                      unsigned char fuc_i = 0, fuc_j = 0, fuc_z = 0;
+                      unsigned long xdata ful_Num[HCTouchLib_OPENED_TK_AMOUNT] = {0x00};
+              
+                      for(fuc_i = 0; fuc_i < HCTouchLib_OPENED_TK_AMOUNT; fuc_i++)
+                      {
+                              XDATA_RawData_Filter[fuc_i][HCTouchLib_FILTER_DEPTH-1] = XDATA_RawDataBuf[fuc_i];
+                              for(fuc_j = 0; fuc_j<HCTouchLib_FILTER_DEPTH-1; fuc_j++)
+                              {
+                                      XDATA_RawData_Filter[fuc_i][fuc_j] = XDATA_RawData_Filter[fuc_i][fuc_j+1];
+                              }
+                              FilterBubbleSort(XDATA_RawData_Filter[fuc_i],HCTouchLib_FILTER_DEPTH);
+                              for(fuc_z = 1; fuc_z<HCTouchLib_FILTER_DEPTH-1; fuc_z++)
+                              {
+                                      ful_Num[fuc_i] += XDATA_RawData_Filter[fuc_i][fuc_z];
+                              }
+                              ful_Num[fuc_i] /=  (HCTouchLib_FILTER_DEPTH-2);
+                              XDATA_RawData[fuc_i] = (u16)(ful_Num[fuc_i]);   
+                      }
+              #else                                                                                   //Ã»ÓÐÊ¹ÄÜÂË²¨
+ 194   1              unsigned char fuc_i = 0;
+ 195   1              for(fuc_i = 0;fuc_i < HCTouchLib_OPENED_TK_AMOUNT;fuc_i++)
+ 196   1              {
+ 197   2                      XDATA_RawData[fuc_i] = XDATA_RawDataBuf[fuc_i];
+ 198   2              }       
+ 199   1      #endif
+ 200   1              
+ 201   1      }
+ 202          
+ 203          /******************************************************************************************************
+ 204           * Revision history:
+ 205           *
+ 206           * Revision 1.01        2017/12/18 14:10 Taboo.Z¤Z
+ 207           * Revision 1.0.2.0     2018/07/20 16:31 Jing.L¤Z
+ 208           * Revision 1.0.3.0     2018/09/10 14:38 Jing.L¤Z
+ 209           * Revision 1.0.4.0     2019/03/06 13:59 Touch Team
+ 210           * Revision 1.0.5.0     2019/09/17 19:23 Touch Team
+ 211           * Add: 1¡¢Ê×´ÎÔö¼ÓRawDataÂË²¨¹¦ÄÜ
+ 212           * Revision 3.0.0.0     2021/04/08 10:45 Touch Team
+ 213           * Add: 1¡¢ÐÞ¸Äµ¥°´¼üÒÔ¼°×éºÏ°´¼üÒì³£´¦Àí·½Ê½
+ 214           ******************************************************************************************************/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     48    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

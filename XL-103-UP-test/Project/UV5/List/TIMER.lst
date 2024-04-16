@@ -1,0 +1,199 @@
+C51 COMPILER V9.00   TIMER                                                                 04/16/2024 09:50:47 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE TIMER
+OBJECT MODULE PLACED IN .\Output\TIMER.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\TIMER\TIMER.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Appl
+                    -ication;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..
+                    -\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK
+                    -;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\TIMER.lst) 
+                    -OBJECT(.\Output\TIMER.obj)
+
+line level    source
+
+   1          /******************* (C) COPYRIGHT 2009~2017 holychip **************************
+   2          * File Name          : TIMER.c
+   3          * Author             : Taboo.Z
+   4          * Version            : V1.00
+   5          * Date               : 9/12/2017
+   6          ********************************************************************************
+   7          
+   8          
+   9          *******************************************************************************/
+  10          #include "define.h"
+  11          
+  12          
+  13          unsigned char xdata TIMER_1MS=0, TIMER_10MS=0, TIMER_100MS=0, TIMER_500MS=0, TIMER_1SEC=0, TIMER_1MIN=0, T
+             -IMER_1HOUR=0;
+  14          
+  15          unsigned char xdata work_10min ; 
+  16          unsigned int xdata  work1_hour , work2_hour,work3_hour , work4_hour, work5_hour;
+  17          
+  18          bit F_1MS; 
+  19          bit F_10MS;
+  20          bit F_100MS; 
+  21          bit F_500MS;
+  22          bit F_1SEC; 
+  23          bit F_1MIN;
+  24          bit F_1HOUR;
+  25          
+  26          bit F_PN_500MS;
+  27          //===============================================================================
+  28          void ParamTimtInit(void)
+  29          {
+  30   1          F_1MS    = 0 ; 
+  31   1          F_10MS   = 0 ;
+  32   1          F_100MS  = 0 ; 
+  33   1          F_500MS  = 0 ;
+  34   1          F_1SEC   = 0 ; 
+  35   1          F_1MIN   = 0 ;
+  36   1          F_1HOUR  = 0 ;
+  37   1          F_PN_500MS = 0;
+  38   1      }
+  39          
+  40          void TIMER0_Init(void)
+  41          {
+  42   1              TIMER0_DIS;
+  43   1              CLR_TIMER0_TF0;
+  44   1              TCON1 |= bmT0X12;                   //1FP
+  45   1              TMOD &= ~(bmBIT1 | bmBIT0);                     //FS0
+  46   1              TIMER0_COUNT_INIT;
+  47   1              ET0 = 1;
+  48   1              TIMER0_EN;
+  49   1      }
+  50          
+C51 COMPILER V9.00   TIMER                                                                 04/16/2024 09:50:47 PAGE 2   
+
+  51          
+  52          void TIMER1_Init(void)
+  53          {
+  54   1       /**********************************TIM1配置初始化**************************************/
+  55   1              TCON1 = 0x00;                                           //T1定时器时钟为Fosc
+  56   1              TMOD = 0x00;                                            //16位重装载定时器/计数器
+  57   1      
+  58   1              //Tim1计算时间  = (65536 - 0xFACB) * (1 / (Fosc /Timer分频系数))
+  59   1              //                              = 1333 / (16000000 / 12)
+  60   1              //                              = 1 ms
+  61   1      
+  62   1              //定时1ms
+  63   1              //反推初值      = 65536 - ((1/1000) / (1/(Fosc / Timer分频系数)))
+  64   1              //                      = 65536 - ((1/1000) / (1/(16000000 / 12)))
+  65   1              //                      = 65536 - 166
+  66   1              //                      = 0xFF5A
+  67   1              
+  68   1              TH1 = 0xFF;
+  69   1              TL1 = 0x5A;
+  70   1              IE |= 0x08;                                                     //打开T1中断
+  71   1              TCON |= 0x40;                                           //使能T1
+  72   1              EA = 1;                                                         //打开总中断
+  73   1       }
+  74          
+  75          void delay_us( unsigned char  count)
+  76          {
+  77   1              unsigned char   i ;
+  78   1              for(i=0 ; i<count ; i++)
+  79   1              {
+  80   2                        ;
+  81   2              }
+  82   1      }
+  83          void delay_ms( unsigned char  count)
+  84          {
+  85   1              unsigned char   i ;
+  86   1              for(i=0 ; i<count ; i++)
+  87   1              {
+  88   2               delay_us( 100)  ;              
+  89   2                       CLR_WDT;
+  90   2              }
+  91   1      }
+  92          
+  93          void TIMR0_ISR_Handle()
+  94          {
+  95   1         /*Nothing*/
+  96   1      }
+  97          
+  98          /*============125us===========*/
+  99          void TIMR1_ISR_Handle()
+ 100          {         
+ 101   1              if(buz_on)
+ 102   1          {       
+ 103   2              beep =~beep; 
+ 104   2          }
+ 105   1          else
+ 106   1          {    
+ 107   2              beep =1;
+ 108   2          }
+ 109   1          
+ 110   1          TIMER_1MS++ ; 
+ 111   1              TIMER_10MS++;
+ 112   1      }
+C51 COMPILER V9.00   TIMER                                                                 04/16/2024 09:50:47 PAGE 3   
+
+ 113          
+ 114          
+ 115          void TIMER_SCAN(void)
+ 116          {  
+ 117   1              if(TIMER_1MS>=8) //1ms
+ 118   1              {
+ 119   2                      TIMER_1MS=0;
+ 120   2                  F_1MS=1;
+ 121   2              }
+ 122   1          
+ 123   1          if(TIMER_10MS>=80)  //10ms
+ 124   1              {
+ 125   2                      TIMER_10MS=0;
+ 126   2                  F_10MS=1;
+ 127   2              
+ 128   2              if(++TIMER_100MS>=10) //100ms
+ 129   2              {
+ 130   3                  TIMER_100MS = 0;
+ 131   3                  F_100MS = 1;
+ 132   3                  
+ 133   3                  if(++TIMER_500MS>=5) //500ms
+ 134   3                  {
+ 135   4                      TIMER_500MS = 0;
+ 136   4                      F_500MS = 1;
+ 137   4                      
+ 138   4                      F_PN_500MS =~ F_PN_500MS;
+ 139   4                      
+ 140   4                      if(++TIMER_1SEC>=2)   //1s
+ 141   4                      {
+ 142   5                          TIMER_1SEC = 0;
+ 143   5                          F_1SEC = 1;
+ 144   5                          
+ 145   5                          if(++TIMER_1MIN>=60) //1min
+ 146   5                          {
+ 147   6                              TIMER_1MIN = 0;
+ 148   6                              F_1MIN = 1;
+ 149   6                              
+ 150   6                              if(++TIMER_1HOUR>=60) //1h
+ 151   6                              {
+ 152   7                                  TIMER_1HOUR = 0;
+ 153   7                                  F_1HOUR = 1;
+ 154   7                              }
+ 155   6                          }
+ 156   5                      }
+ 157   4                  }
+ 158   3              }
+ 159   2              }
+ 160   1          
+ 161   1      }
+ 162          
+ 163          
+ 164          /*********************************END OF FILE************************************/
+ 165          /******************* (C) COPYRIGHT 2009~2017 holychip ***************************/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    219    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     18    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.00   TIMER                                                                 04/16/2024 09:50:47 PAGE 4   
+
+   BIT SIZE         =      8    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

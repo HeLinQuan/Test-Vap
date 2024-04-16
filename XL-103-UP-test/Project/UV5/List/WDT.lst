@@ -1,0 +1,47 @@
+C51 COMPILER V9.00   WDT                                                                   04/16/2024 09:50:46 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE WDT
+OBJECT MODULE PLACED IN .\Output\WDT.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\WDT\WDT.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Applicat
+                    -ion;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..\App
+                    -lication\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK;..\
+                    -..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\WDT.lst) OBJECT
+                    -(.\Output\WDT.obj)
+
+line level    source
+
+   1          /******************* (C) COPYRIGHT 2009~2016 holychip **************************
+   2          * File Name          : WDT.c
+   3          * Author             : Taboo.Z¤Z
+   4          * Version            : V1.00
+   5          * Date               : 9/12/2017
+   6          ********************************************************************************
+   7          
+   8          
+   9          *******************************************************************************/
+  10          //#include "HC89F303.h"
+  11          #include "WDT.h"
+  12          #include "HC89F30xC.h"
+  13          
+  14          //===============================================================================
+  15          void WDT_INIT(void)
+  16          {
+  17   1              WDTCCR = WDTCCR_DF;
+  18   1              WDTC =   bmWDTCLR | bmWDTPS1 | bmWDTPS0;        //PS 011  64  MAX64K    MIN 256MS
+  19   1      }
+  20          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     10    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

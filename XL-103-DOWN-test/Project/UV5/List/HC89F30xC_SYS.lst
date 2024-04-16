@@ -1,0 +1,56 @@
+C51 COMPILER V9.00   HC89F30XC_SYS                                                         04/15/2024 19:40:38 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE HC89F30XC_SYS
+OBJECT MODULE PLACED IN .\Output\HC89F30xC_SYS.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\User\C\HC89F30xC_SYS.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Applica
+                    -tion;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..\Ap
+                    -plication\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK;..
+                    -\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\HC89F30xC_SYS.
+                    -lst) OBJECT(.\Output\HC89F30xC_SYS.obj)
+
+line level    source
+
+   1          /******************* (C) COPYRIGHT 2009~2021 holychip **************************
+   2          * File Name          : HC89F30xC_SYS.c
+   3          ********************************************************************************
+   4          
+   5          
+   6          *******************************************************************************/
+   7          #include        "HC89F30xC.h"
+   8          #include        "HC89F30xC_SYS.h"
+   9          
+  10          /****************************************************************************
+  11          * Function Name  :
+  12          * Description    :
+  13          * Input          : None
+  14          * Output         : None
+  15          * Return         : None
+  16          ****************************************************************************/
+  17          void SystemInit(void)
+  18          {
+  19   1              //SYS CLOCK
+  20   1              CLKSWR = (SYSCLK_SEL << 4) | SYSCLK_HSRC_DIV;
+  21   1              CLKDIV = SYSCLK_FCPU_DIV;
+  22   1      
+  23   1              //BOR
+  24   1              RSTDBC = 0xFF;                  //Timer = RSTDBC*8*Tcpu + 2Tcpu
+  25   1              BORC = 0xC0 | BOR_SET_2V4 ;             
+  26   1      }
+  27          
+  28          /*********************************END OF FILE************************************/
+  29          /******************* (C) COPYRIGHT 2009~2021 holychip ***************************/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     22    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,220 @@
+C51 COMPILER V9.00   USART                                                                 04/16/2024 09:50:47 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE USART
+OBJECT MODULE PLACED IN .\Output\USART.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\USART\USART.C OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Appl
+                    -ication;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..
+                    -\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK
+                    -;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\USART.lst) 
+                    -OBJECT(.\Output\USART.obj)
+
+line level    source
+
+   1          #include "define.h"
+   2          unsigned char xdata SendOutData[16] = {0x55,0xAA,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+   3          unsigned char xdata ReceivebeBuffer[16] = {0x00,0x00,0x00,0x00};                //接收缓存器
+   4          unsigned char Receiveflag = 0;                                                          //接收标志位
+   5          unsigned char Receietime = 0;                                                                   //接收时间
+   6          unsigned char Receivenum = 0;                                                                   //接收数目
+   7          
+   8          bit F_WORK;
+   9          unsigned char F_BUZ;
+  10          
+  11          volatile unsigned char xdata ReceiveLimitFlag = 0;                                                      //接收限制标志位
+  12          volatile unsigned int xdata ReceiveLimitCount = 0;                                                      //接收限制计数
+  13          
+  14          
+  15          unsigned char WENBIAO_value ,START_value  , WORK_value  ,YURE_value; 
+  16          
+  17          
+  18          //unsigned int  xdata KAOLU_temp,KEY_VALUE,F_OVER;
+  19          //unsigned int  xdata F_30min,beep=0,beep1=0,beep2=0;
+  20          
+  21          
+  22          void UartInit()                 //uart初始化
+  23          {
+  24   1              /**********************************UART配置初始化**************************************/
+  25   1          
+  26   1      //    P1M6 =  GPIO_In_PU;      //  RXD      设置为上拉输入
+  27   1      //      P1M7 =  GPIO_Out_PP;    // TXD      设置为推挽输出
+  28   1      //      
+  29   1      //      TXD_MAP = 0x17;                                                 //TXD映射P
+  30   1      //      RXD_MAP = 0x16;                                                 //RXD映射P
+  31   1              
+  32   1          P1M6 = GPIO_Out_PP ;      //  RXD      设置为上拉输入
+  33   1              P1M7 = GPIO_In_PU ;    // TXD       设置为推挽输出
+  34   1              
+  35   1              TXD_MAP =0x16 ;                                                 //TXD映射P
+  36   1              RXD_MAP =0x17 ;                                                 //RXD映射P
+  37   1      
+  38   1      
+  39   1      
+  40   1      
+  41   1              
+  42   1              T4CON = 0x06;                                                           //T4工作模式：UART1波特率发生器
+  43   1              //波特率计算
+  44   1              //波特率 = 1/16 * (T4时钟源频率 / 定时器4预分频比) / (65536 - 0xFF98)
+  45   1              //       = 1/16 * ((16000000 / 1) / 104)
+  46   1              //               = 9615.38(误差0.16%)
+  47   1      
+  48   1              //波特率9600
+  49   1              //反推初值 = (65536 - ((T4时钟源频率 / 定时器4预分频比) * (1 / 16)) / 波特率)
+  50   1              //                 = (65536 - (16000000 * (1 / 16) / 9600))
+  51   1              //                 = (65536 - 104.167)
+C51 COMPILER V9.00   USART                                                                 04/16/2024 09:50:47 PAGE 2   
+
+  52   1              //         = FF98
+  53   1          TH4 = 0xFF;
+  54   1              TL4 = 0x98;                                                     //波特率9600
+  55   1              SCON2 = 0x02;                                           //8位UART，波特率可变
+  56   1              SCON = 0x10;                                            //允许串行接收
+  57   1              IE |= 0x10;                                                     //使能串口中断
+  58   1              EA = 1;                                                           //使能总中断
+  59   1      }
+  60          
+  61          
+  62          //发送一个字节
+  63          void UART_SendChar(unsigned char UART_da)
+  64          {
+  65   1                SBUF = UART_da;                                               //发送8位串口数据
+  66   1                      while(!(SCON & 0x02));
+  67   1                      SCON &=~ 0x02;                                          //清除发送中断标志位
+  68   1      }
+  69          
+  70          void  UART_SendData(  unsigned char  len0)
+  71          {
+  72   1          unsigned char i;
+  73   1                      for(i=0;i<len0;i++)
+  74   1                      {
+  75   2                                      UART_SendChar(SendOutData[i]);  
+  76   2                      }
+  77   1      }
+  78          
+  79          
+  80           void JudgeOneStringEnd()                                       //判断一帧数据结束
+  81          {
+  82   1              if(Receiveflag == 1 && Receietime == 3)         //3             
+  83   1              { 
+  84   2                              JudgeTheReceiveData(ReceivebeBuffer,Receivenum);
+  85   2                              ClearBuffer();
+  86   2              }
+  87   1      }
+  88          
+  89          
+  90          //Status: 4(已连上路由器且连接到云端)
+  91          //    55 AA 00 03 00 01 04 07
+  92          //接收模块发送的心跳信息             [2022/08/19 17:57:37.95]
+  93          //    55 AA 00 00 00 00 FF
+  94          
+  95          //55 AA 00 08 00 00 07
+  96          
+  97          unsigned char JudgeTheReceiveData(unsigned char *da,unsigned char num)                  //判断接收的数据是否正确
+  98          {
+  99   1                      unsigned char  num_data, i ;
+ 100   1                num_data = num;
+ 101   1                      num_data = 0 ;
+ 102   1                      for(i=2 ; i<11 ; i++)
+ 103   1                      {
+ 104   2                               num_data += *(da+i);
+ 105   2                      }
+ 106   1      
+ 107   1                      if((*da == 0X55) &&(*(da+1) == 0XAA)&&(num_data == *(da+11)))//头码、校验码正确
+ 108   1                      {
+ 109   2      //                F_FilterSet= (*(da+2)) ;   //串口接收到滤芯复位信息
+ 110   2      //          Filter_SetMode = (*(da+3));
+ 111   2      //          F_Power = (*(da+6));
+ 112   2                        return Success;
+ 113   2                      }
+C51 COMPILER V9.00   USART                                                                 04/16/2024 09:50:47 PAGE 3   
+
+ 114   1                      else
+ 115   1                      {
+ 116   2                               return Fail;
+ 117   2                      }
+ 118   1      }
+ 119          
+ 120          void ClearBuffer()                                                                                                      //清空缓存器
+ 121          {
+ 122   1              unsigned char i = 0;
+ 123   1              for(i=0; i<50; i++)
+ 124   1              {       
+ 125   2                      ReceivebeBuffer[i] = 0;
+ 126   2              }
+ 127   1              Receiveflag = 0;
+ 128   1              Receietime  = 0;
+ 129   1              Receivenum  = 0;
+ 130   1      }
+ 131          void DIS_TO_MAIN_SEND(void)
+ 132          {
+ 133   1                unsigned char x , num_data ; 
+ 134   1                //ERR_CODE = 1;
+ 135   1          //55 AA 03 07 00 08 09 02 00 04 00 00 00 0F 2F  
+ 136   1                      SendOutData[0] = 0X55 ; 
+ 137   1                      SendOutData[1] = 0XAA ;                                                                         
+ 138   1                  SendOutData[2] = F_FilterSet ; 
+ 139   1                      SendOutData[3] = Filter_SetMode ; 
+ 140   1                      SendOutData[4] = 0X00;
+ 141   1                      SendOutData[5] = TDS_RO_avg;
+ 142   1                      SendOutData[6] = F_Power ; 
+ 143   1                      SendOutData[7] = F_FilterOutTime ;
+ 144   1                      SendOutData[8] = 0X00 ;
+ 145   1                  SendOutData[9] = 0X00 ;
+ 146   1                      SendOutData[10]= 0X00 ;
+ 147   1                      num_data = 0 ; 
+ 148   1                      for(x=2 ; x<11 ; x++)
+ 149   1                      {
+ 150   2                                      num_data += SendOutData[x] ;
+ 151   2                      }
+ 152   1                      SendOutData[11]= num_data ; 
+ 153   1                      UART_SendData(12) ;
+ 154   1      }
+ 155          
+ 156          void SingReceive(void)
+ 157          {
+ 158   1      if(ReceiveLimitFlag == 1)
+ 159   1      {
+ 160   2              ReceiveLimitCount++;
+ 161   2              if(ReceiveLimitCount==100)
+ 162   2              {
+ 163   3                  ReceiveLimitFlag = 0;
+ 164   3                  ReceiveLimitCount = 0;
+ 165   3              }
+ 166   2      }
+ 167   1      
+ 168   1      if(Receiveflag == 1)    //串口接收一帧数据判断
+ 169   1      {
+ 170   2              Receietime++;
+ 171   2              if(Receietime>=6)
+ 172   2              {
+ 173   3                  ReceiveLimitFlag = 1;
+ 174   3                  Receietime = 6;
+ 175   3              }
+C51 COMPILER V9.00   USART                                                                 04/16/2024 09:50:47 PAGE 4   
+
+ 176   2      }
+ 177   1      }
+ 178          
+ 179          
+ 180          
+ 181          
+ 182          
+ 183          
+ 184          /*
+ 185          
+ 186          
+ 187          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    335    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     35    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

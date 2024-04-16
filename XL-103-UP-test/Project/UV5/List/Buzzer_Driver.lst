@@ -1,0 +1,107 @@
+C51 COMPILER V9.00   BUZZER_DRIVER                                                         04/16/2024 09:50:46 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE BUZZER_DRIVER
+OBJECT MODULE PLACED IN .\Output\Buzzer_Driver.obj
+COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\Buzzer_Driver\Buzzer_Driver.c OPTIMIZE(8,SPEED) BROWSE I
+                    -NCDIR(..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Applicati
+                    -on\DISPLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\App
+                    -lication\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\
+                    -List\Buzzer_Driver.lst) OBJECT(.\Output\Buzzer_Driver.obj)
+
+line level    source
+
+   1          /******************* (C) COPYRIGHT 2009~2017 holychip **************************
+   2          * File Name          : Buzzer_Driver.c
+   3          * Author             : Taboo.Z
+   4          * Version            : V1.00
+   5          * Date               : 10/10/2017
+   6          ********************************************************************************
+   7          
+   8          
+   9          *******************************************************************************/
+  10          #include "define.h"
+  11          bit F_BEEP1=0,F_BEEP2=0,F_BEEP3=0,F_BEEP4=0,F_BEEP5=0;
+  12          unsigned char xdata  speek_dd,speekk,speek_pp,speek_countt;
+  13          unsigned char xdata  buz_on ;  
+  14          //***************************************************************/
+  15          /*模 块 名: speek_manage            驱动型号：海尔                      */
+  16          /*文件名称: 声音处理程序                                                    */
+  17          /*创 建 人：张 铸                   日      期：2011-12-20                  */
+  18          /*修 改 人：                        日      期：                                */
+  19          /*功能描述：speek_p为声音周期，speek_d为响的时间，                  */
+  20          /*speek_count为响的时间                                                     */
+  21          /*其他说明：                                                                    */
+  22          /*版    本：                                                                        */
+  23          //***************************************************************/
+  24          
+  25          void    speek_manage0()
+  26          {
+  27   1          if(speek_dd>speekk)
+  28   1          {
+  29   2              buz_on=2;                   //开始响
+  30   2          }//
+  31   1          else
+  32   1          {
+  33   2              buz_on=0;
+  34   2              if(speekk>speek_pp)       //本周期结束
+  35   2              {
+  36   3                 if(speek_countt>0)
+  37   3                 {
+  38   4                      speek_countt-=1;
+  39   4                      speekk=0;
+  40   4                 }
+  41   3                 else
+  42   3                 {
+  43   4                      speek_pp=0;
+  44   4                      speek_dd=0;
+  45   4                 }
+  46   3              }
+  47   2          }//
+  48   1          if(++speekk>250)
+  49   1           {
+  50   2              speekk=250;
+  51   2           }//
+C51 COMPILER V9.00   BUZZER_DRIVER                                                         04/16/2024 09:50:46 PAGE 2   
+
+  52   1      }//
+  53          
+  54          
+  55          void speek_dan0(u8 speek_d_tmp)//时间为10MS*timers_20
+  56          {
+  57   1          if(speekk>speek_d_tmp)
+  58   1          {
+  59   2              speekk=0;
+  60   2          }
+  61   1          speek_dd=speek_d_tmp;
+  62   1          speek_pp=0;                      //单次按键有效去掉多次按键有效。
+  63   1          speek_countt=0;
+  64   1      }
+  65          //speek_p_tmp是周期，speek_d_tmp是响的时间，speek_count_tmp是次数
+  66          void speek_duo(u8 speek_p_tmp,u8 speek_d_tmp,u8 speek_count_tmp)
+  67          {
+  68   1          if(speekk>speek_p_tmp)
+  69   1          {
+  70   2              speekk=0;
+  71   2          }
+  72   1          speek_dd=speek_d_tmp;
+  73   1          speek_pp=speek_p_tmp;
+  74   1          speek_countt=speek_count_tmp-1;
+  75   1      }
+  76          
+  77          /*********************************END OF FILE************************************/
+  78          /******************* (C) COPYRIGHT 2009~2017 holychip ***************************/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    127    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      5    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      5    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
