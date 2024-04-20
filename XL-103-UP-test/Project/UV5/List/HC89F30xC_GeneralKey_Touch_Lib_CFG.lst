@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   HC89F30XC_GENERALKEY_TOUCH_LIB_CFG                                    04/16/2024 09:50:45 PAGE 1   
+C51 COMPILER V9.00   HC89F30XC_GENERALKEY_TOUCH_LIB_CFG                                    04/18/2024 20:31:02 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE HC89F30XC_GENERALKEY_TOUCH_LIB_CFG
@@ -7,8 +7,8 @@ COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Libraries\HC89F30xC_GeneralK
                     -Touch_Lib_CFG.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buzze
                     -r_Driver;..\..\Application;..\..\Application\DISPLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TI
                     -MER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Appl
-                    -ication\USART) DEBUG OBJECTEXTEND PRINT(.\List\HC89F30xC_GeneralKey_Touch_Lib_CFG.lst) OBJECT(.\Output\HC89F30xC_General
-                    -Key_Touch_Lib_CFG.obj)
+                    -ication\USART;..\..\Application\RS485-Modbus) DEBUG OBJECTEXTEND PRINT(.\List\HC89F30xC_GeneralKey_Touch_Lib_CFG.lst) OB
+                    -JECT(.\Output\HC89F30xC_GeneralKey_Touch_Lib_CFG.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   31          uc8             CODE_RBS                        = (0 << 7) | HCTouchLib_RBS;
   32          uc8             CODE_VD                                                 = HCTouchLib_VD;
   33          uc8             CODE_RBSEL                                              = HCTouchLib_RBS;
-C51 COMPILER V9.00   HC89F30XC_GENERALKEY_TOUCH_LIB_CFG                                    04/16/2024 09:50:45 PAGE 2   
+C51 COMPILER V9.00   HC89F30XC_GENERALKEY_TOUCH_LIB_CFG                                    04/18/2024 20:31:02 PAGE 2   
 
   34          uc16    CODE_OVERLOW_TIME               = HCTouchLib_OVERLOW_TIME;
   35          uc8             CODE_CONFIRM_TOUCH_TIME         = HCTouchLib_CONFIRM_TOUCH_TIME;

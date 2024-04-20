@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   TM1652                                                                04/16/2024 09:50:46 PAGE 1   
+C51 COMPILER V9.00   TM1652                                                                04/18/2024 20:31:03 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE TM1652
@@ -6,8 +6,8 @@ OBJECT MODULE PLACED IN .\Output\TM1652.obj
 COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\TM1652\TM1652.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Ap
                     -plication;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\
                     -..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WO
-                    -RK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\TM1652.ls
-                    -t) OBJECT(.\Output\TM1652.obj)
+                    -RK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART;..\..\Application\RS485-Modbus) DEBUG OBJE
+                    -CTEXTEND PRINT(.\List\TM1652.lst) OBJECT(.\Output\TM1652.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   49          /*unsigned char K = 0;
   50          unsigned char Tm1652_flag = 0;                  //1652显示延迟标志位
   51          unsigned char Tm1652_TimeCount = 0;*/                   //1652显示时间
-C51 COMPILER V9.00   TM1652                                                                04/16/2024 09:50:46 PAGE 2   
+C51 COMPILER V9.00   TM1652                                                                04/18/2024 20:31:03 PAGE 2   
 
   52          void TM1652_init(void)
   53          {
@@ -126,7 +126,7 @@ line level    source
  111          {
  112   1                      unsigned char Ctr_duty;
  113   1                      unsigned char Ctr_curr;
-C51 COMPILER V9.00   TM1652                                                                04/16/2024 09:50:46 PAGE 3   
+C51 COMPILER V9.00   TM1652                                                                04/18/2024 20:31:03 PAGE 3   
 
  114   1                      unsigned char Ctr_mode;
  115   1                      unsigned char Crdata;

@@ -324,7 +324,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART</IncludePath>
+              <IncludePath>..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART;..\..\Application\RS485-Modbus</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -626,6 +626,21 @@
               <FileName>REDME.txt</FileName>
               <FileType>5</FileType>
               <FilePath>.\REDME.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>RS485-Modbus</GroupName>
+          <Files>
+            <File>
+              <FileName>RS485.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Application\RS485-Modbus\RS485.c</FilePath>
+            </File>
+            <File>
+              <FileName>CRC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\CRC.c</FilePath>
             </File>
           </Files>
         </Group>

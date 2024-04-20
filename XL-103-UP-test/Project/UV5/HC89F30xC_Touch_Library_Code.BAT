@@ -23,5 +23,7 @@ SET CPU_XTAL=0x01E84800
 "F:\KEIL5\C51\BIN\C51.EXE" @".\Output\Fun_Handle.__i"
 "F:\KEIL5\C51\BIN\C51.EXE" @".\Output\KEY.__i"
 "F:\KEIL5\C51\BIN\C51.EXE" @".\Output\USART.__i"
+"F:\KEIL5\C51\BIN\C51.EXE" @".\Output\RS485.__i"
+"F:\KEIL5\C51\BIN\C51.EXE" @".\Output\CRC.__i"
 "F:\KEIL5\C51\BIN\BL51.EXE" @".\Output\HC89F30xC_Touch_Library_Code.lnp"
 "F:\KEIL5\C51\BIN\OH51.EXE" ".\Output\HC89F30xC_Touch_Library_Code" 

@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   HC89F30XC_IO_INIT                                                     04/16/2024 09:50:46 PAGE 1   
+C51 COMPILER V9.00   HC89F30XC_IO_INIT                                                     04/18/2024 20:31:02 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE HC89F30XC_IO_INIT
@@ -6,8 +6,8 @@ OBJECT MODULE PLACED IN .\Output\HC89F30xC_IO_INIT.obj
 COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\User\C\HC89F30xC_IO_INIT.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\App
                     -lication;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\.
                     -.\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WOR
-                    -K;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\HC89F30xC_
-                    -IO_INIT.lst) OBJECT(.\Output\HC89F30xC_IO_INIT.obj)
+                    -K;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART;..\..\Application\RS485-Modbus) DEBUG OBJEC
+                    -TEXTEND PRINT(.\List\HC89F30xC_IO_INIT.lst) OBJECT(.\Output\HC89F30xC_IO_INIT.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   49   1                      P2M7 = GPIO_Out_PP; //
   50   1      
   51   1              P3 = 0X00;
-C51 COMPILER V9.00   HC89F30XC_IO_INIT                                                     04/16/2024 09:50:46 PAGE 2   
+C51 COMPILER V9.00   HC89F30XC_IO_INIT                                                     04/18/2024 20:31:02 PAGE 2   
 
   52   1                      P3M4 = GPIO_Out_PP;  // 1652SDA
   53   1                      P3M5 = GPIO_Out_PP; // ·äÃùÆ÷

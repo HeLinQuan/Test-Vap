@@ -22,23 +22,13 @@ unsigned char WENBIAO_value ,START_value  , WORK_value  ,YURE_value;
 void UartInit()			//uart初始化
 {
 	/**********************************UART配置初始化**************************************/
-    
-//    P1M6 =  GPIO_In_PU;      //  RXD      设置为上拉输入
-//	P1M7 =  GPIO_Out_PP;    // TXD	    设置为推挽输出
-//	
-//	TXD_MAP = 0x17;							//TXD映射P
-//	RXD_MAP = 0x16;							//RXD映射P
 	
-    P1M6 = GPIO_Out_PP ;      //  RXD      设置为上拉输入
+    P1M6 = GPIO_Out_PP ;      //RXD      设置为上拉输入
 	P1M7 = GPIO_In_PU ;    // TXD	    设置为推挽输出
 	
 	TXD_MAP =0x16 ;							//TXD映射P
 	RXD_MAP =0x17 ;							//RXD映射P
-
-
-
-
-	
+    
 	T4CON = 0x06;								//T4工作模式：UART1波特率发生器
 	//波特率计算
 	//波特率 = 1/16 * (T4时钟源频率 / 定时器4预分频比) / (65536 - 0xFF98)
@@ -62,12 +52,12 @@ void UartInit()			//uart初始化
 //发送一个字节
 void UART_SendChar(unsigned char UART_da)
 {
-	  SBUF = UART_da;						//发送8位串口数据
-		while(!(SCON & 0x02));
+	    SBUF = UART_da;						//发送8位串口数据
+		while(!(SCON & 0x02));              //SCON & 0x02  == TI
 		SCON &=~ 0x02;						//清除发送中断标志位
 }
 
-void  UART_SendData(  unsigned char  len0)
+void  UART_SendData(unsigned char  len0)
 {
     unsigned char i;
 		for(i=0;i<len0;i++)
@@ -89,7 +79,7 @@ void  UART_SendData(  unsigned char  len0)
 unsigned char JudgeTheReceiveData(unsigned char *da,unsigned char num)			//判断接收的数据是否正确
 {
 		unsigned char  num_data, i ;
-	  num_data = num;
+	    num_data = num;
 		num_data = 0 ;
 		for(i=2 ; i<11 ; i++)
 		{
@@ -145,25 +135,25 @@ void DIS_TO_MAIN_SEND(void)
 
 void SingReceive(void)
 {
-if(ReceiveLimitFlag == 1)
-{
-        ReceiveLimitCount++;
-        if(ReceiveLimitCount==100)
-        {
-            ReceiveLimitFlag = 0;
-            ReceiveLimitCount = 0;
-        }
-}
+    if(ReceiveLimitFlag == 1)
+    {
+            ReceiveLimitCount++;
+            if(ReceiveLimitCount==100)
+            {
+                ReceiveLimitFlag = 0;
+                ReceiveLimitCount = 0;
+            }
+    }
 
-if(Receiveflag == 1)	//串口接收一帧数据判断
-{
-        Receietime++;
-        if(Receietime>=6)
-        {
-            ReceiveLimitFlag = 1;
-            Receietime = 6;
-        }
-}
+    if(Receiveflag == 1)	//串口接收一帧数据判断
+    {
+            Receietime++;
+            if(Receietime>=6)
+            {
+                ReceiveLimitFlag = 1;
+                Receietime = 6;
+            }
+    }
 }
 
 

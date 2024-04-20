@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   BUZZER_DRIVER                                                         04/16/2024 09:50:46 PAGE 1   
+C51 COMPILER V9.00   BUZZER_DRIVER                                                         04/18/2024 20:31:03 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE BUZZER_DRIVER
@@ -6,8 +6,8 @@ OBJECT MODULE PLACED IN .\Output\Buzzer_Driver.obj
 COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\Buzzer_Driver\Buzzer_Driver.c OPTIMIZE(8,SPEED) BROWSE I
                     -NCDIR(..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Applicati
                     -on\DISPLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\App
-                    -lication\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\
-                    -List\Buzzer_Driver.lst) OBJECT(.\Output\Buzzer_Driver.obj)
+                    -lication\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART;..\..\Application\RS485-Modb
+                    -us) DEBUG OBJECTEXTEND PRINT(.\List\Buzzer_Driver.lst) OBJECT(.\Output\Buzzer_Driver.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   49   1           {
   50   2              speekk=250;
   51   2           }//
-C51 COMPILER V9.00   BUZZER_DRIVER                                                         04/16/2024 09:50:46 PAGE 2   
+C51 COMPILER V9.00   BUZZER_DRIVER                                                         04/18/2024 20:31:03 PAGE 2   
 
   52   1      }//
   53          

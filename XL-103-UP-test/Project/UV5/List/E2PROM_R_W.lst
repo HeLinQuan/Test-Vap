@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   E2PROM_R_W                                                            04/16/2024 09:50:47 PAGE 1   
+C51 COMPILER V9.00   E2PROM_R_W                                                            04/18/2024 20:31:03 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE E2PROM_R_W
@@ -6,8 +6,8 @@ OBJECT MODULE PLACED IN .\Output\E2PROM_R_W.obj
 COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\EEPROM_R_W\E2PROM_R_W.C OPTIMIZE(8,SPEED) BROWSE INCDIR(
                     -..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DIS
                     -PLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Applicati
-                    -on\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\E
-                    -2PROM_R_W.lst) OBJECT(.\Output\E2PROM_R_W.obj)
+                    -on\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART;..\..\Application\RS485-Modbus) DE
+                    -BUG OBJECTEXTEND PRINT(.\List\E2PROM_R_W.lst) OBJECT(.\Output\E2PROM_R_W.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   49            * @参数       fui_Address ：FLASH地址
   50            *     @参数   fucp_SaveData：写入的数据
   51            * @返回值 无
-C51 COMPILER V9.00   E2PROM_R_W                                                            04/16/2024 09:50:47 PAGE 2   
+C51 COMPILER V9.00   E2PROM_R_W                                                            04/18/2024 20:31:03 PAGE 2   
 
   52            * @注         写之前必须先对操作的扇区进行擦除
   53            */
@@ -126,7 +126,7 @@ line level    source
  111   2              work2_hour  = 0 ;  
  112   2              work3_hour  = 3 ;       //work3_hour、work4_hour 用来存储加热与制冷的 H、M、L  默认温度设置都为3-H
  113   2              work4_hour  = 3 ;    
-C51 COMPILER V9.00   E2PROM_R_W                                                            04/16/2024 09:50:47 PAGE 3   
+C51 COMPILER V9.00   E2PROM_R_W                                                            04/18/2024 20:31:03 PAGE 3   
 
  114   2              work5_hour  = 3 ;       //work4_hour 用来存储出水量1：180ml、2:250ml、3:500ml、4:1000ml 默认为500m
              -l

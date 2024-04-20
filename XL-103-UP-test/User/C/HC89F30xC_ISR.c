@@ -50,10 +50,22 @@ void UART1_Rpt(void) interrupt UART1_VECTOR
 	if(SCON&0x01)						//判断接收中断标志位
 	{
 			SCON &=~ 0x01;					//清除接收中断标志位
-			Receiveflag = 1;
-			Receietime = 0;
-			ReceivebeBuffer[Receivenum] = SBUF;
-			Receivenum++;
+            if(USE_RS485 == 0)
+            {
+                Receiveflag = 1;
+                Receietime = 0;
+                ReceivebeBuffer[Receivenum] = SBUF;
+                Receivenum++;
+            }
+            else
+            {
+                if(USART_RX_CNT < USART_RX_MAX)  //接收到的字节 小于 设置的最大缓存区
+                {
+                    USART_RX_CNT++;
+                    USART_RX_BUF[USART_RX_CNT] = SBUF;
+                }
+            }
+			
 	}	
 }
 

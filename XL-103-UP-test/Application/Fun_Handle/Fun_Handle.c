@@ -255,7 +255,9 @@ static void Scan_1ms(void)
     if(F_1MS==1)
 	{
         F_1MS = 0;
+        
         SingReceive();
+        UartRxMonitor();
         TDS_CHECK();
     }
 }

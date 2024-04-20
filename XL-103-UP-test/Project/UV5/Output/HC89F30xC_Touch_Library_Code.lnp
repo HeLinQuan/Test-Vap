@@ -18,7 +18,9 @@
 ".\Output\AD_TDS.obj",
 ".\Output\Fun_Handle.obj",
 ".\Output\KEY.obj",
-".\Output\USART.obj" 
+".\Output\USART.obj",
+".\Output\RS485.obj",
+".\Output\CRC.obj" 
 TO ".\Output\HC89F30xC_Touch_Library_Code" 
 PRINT(".\List\HC89F30xC_Touch_Library_Code.m51") RAMSIZE(256) 
 DISABLEWARNING (16,57) 

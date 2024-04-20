@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   TIMER                                                                 04/16/2024 09:50:47 PAGE 1   
+C51 COMPILER V9.00   TIMER                                                                 04/18/2024 20:31:03 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE TIMER
@@ -6,8 +6,8 @@ OBJECT MODULE PLACED IN .\Output\TIMER.obj
 COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\TIMER\TIMER.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\Appl
                     -ication;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..\..
                     -\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_WORK
-                    -;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\TIMER.lst) 
-                    -OBJECT(.\Output\TIMER.obj)
+                    -;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART;..\..\Application\RS485-Modbus) DEBUG OBJECT
+                    -EXTEND PRINT(.\List\TIMER.lst) OBJECT(.\Output\TIMER.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   48   1              TIMER0_EN;
   49   1      }
   50          
-C51 COMPILER V9.00   TIMER                                                                 04/16/2024 09:50:47 PAGE 2   
+C51 COMPILER V9.00   TIMER                                                                 04/18/2024 20:31:03 PAGE 2   
 
   51          
   52          void TIMER1_Init(void)
@@ -126,7 +126,7 @@ line level    source
  110   1          TIMER_1MS++ ; 
  111   1              TIMER_10MS++;
  112   1      }
-C51 COMPILER V9.00   TIMER                                                                 04/16/2024 09:50:47 PAGE 3   
+C51 COMPILER V9.00   TIMER                                                                 04/18/2024 20:31:03 PAGE 3   
 
  113          
  114          
@@ -190,7 +190,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
-C51 COMPILER V9.00   TIMER                                                                 04/16/2024 09:50:47 PAGE 4   
+C51 COMPILER V9.00   TIMER                                                                 04/18/2024 20:31:03 PAGE 4   
 
    BIT SIZE         =      8    ----
 END OF MODULE INFORMATION.

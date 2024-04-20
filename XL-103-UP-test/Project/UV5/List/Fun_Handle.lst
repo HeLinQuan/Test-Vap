@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 1   
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE FUN_HANDLE
@@ -6,8 +6,8 @@ OBJECT MODULE PLACED IN .\Output\Fun_Handle.obj
 COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\Fun_Handle\Fun_Handle.c OPTIMIZE(8,SPEED) BROWSE INCDIR(
                     -..\..\Application;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DIS
                     -PLAY;..\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Applicati
-                    -on\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\F
-                    -un_Handle.lst) OBJECT(.\Output\Fun_Handle.obj)
+                    -on\AD_WORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART;..\..\Application\RS485-Modbus) DE
+                    -BUG OBJECTEXTEND PRINT(.\List\Fun_Handle.lst) OBJECT(.\Output\Fun_Handle.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   49          
   50          /****变量初始化****/
   51          void ParamInit(void)
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 2   
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 2   
 
   52          { 
   53   1            ParamTimtInit();
@@ -126,7 +126,7 @@ line level    source
  111   1              {
  112   2                      F_QUESHUI = 0 ;   //不缺水               
  113   2                      if(F_yali_high==0) 
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 3   
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 3   
 
  114   2                      { 
  115   3                              F_WaterProduction = 1 ; //制水工作 
@@ -190,7 +190,7 @@ line level    source
  173          
  174          /**********************************************************
  175          冲洗模式  10ms 
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 4   
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 4   
 
  176          ***********************************************************/
  177          void RO_CLEAN_check(void)
@@ -254,7 +254,7 @@ line level    source
  234          void TDS_CHECK(void)
  235          {
  236   1          if(F_WaterProduction==1)  //制水标志                        
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 5   
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 5   
 
  237   1          {
  238   2              if(++TDS_CHECK_CNT>=15000)
@@ -277,247 +277,249 @@ line level    source
  255   1          if(F_1MS==1)
  256   1              {
  257   2              F_1MS = 0;
- 258   2              SingReceive();
- 259   2              TDS_CHECK();
- 260   2          }
- 261   1      }
- 262          
- 263          static void Scan_10ms(void)
- 264          {
- 265   1          if(F_10MS==1)
- 266   1                {
- 267   2                    F_10MS = 0; 
- 268   2                speek_manage0();
- 269   2                KEY_Handle(KEY_TEMP);  //按键函数调用
- 270   2                yali_sw_check();
- 271   2                
- 272   2                Check_Leak();   //漏水检测
- 273   2                RO_SYS_WORK();
- 274   2                }
- 275   1      }
- 276          
- 277          static void Scan_100ms(void)
- 278          {
- 279   1          if(F_100MS == 1)
- 280   1          {
- 281   2             F_100MS =0;
- 282   2              
- 283   2              if(++DIS_CNT>=2)
- 284   2              {
- 285   3                  DIS_CNT = 0;
- 286   3                  
- 287   3                  DIS_MANAGE();    /*显示函数调用*/
- 288   3                              if(buz_on==0)
- 289   3                  {
- 290   4                      display();      
- 291   4                  }
- 292   3              }
- 293   2              
- 294   2              WorkPro();
- 295   2              RO_CLEAN_check();
- 296   2              RO_SIGN_chuli();
- 297   2          }
- 298   1      }
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 6   
+ 258   2              
+ 259   2              SingReceive();
+ 260   2              UartRxMonitor();
+ 261   2              TDS_CHECK();
+ 262   2          }
+ 263   1      }
+ 264          
+ 265          static void Scan_10ms(void)
+ 266          {
+ 267   1          if(F_10MS==1)
+ 268   1                {
+ 269   2                    F_10MS = 0; 
+ 270   2                speek_manage0();
+ 271   2                KEY_Handle(KEY_TEMP);  //按键函数调用
+ 272   2                yali_sw_check();
+ 273   2                
+ 274   2                Check_Leak();   //漏水检测
+ 275   2                RO_SYS_WORK();
+ 276   2                }
+ 277   1      }
+ 278          
+ 279          static void Scan_100ms(void)
+ 280          {
+ 281   1          if(F_100MS == 1)
+ 282   1          {
+ 283   2             F_100MS =0;
+ 284   2              
+ 285   2              if(++DIS_CNT>=2)
+ 286   2              {
+ 287   3                  DIS_CNT = 0;
+ 288   3                  
+ 289   3                  DIS_MANAGE();    /*显示函数调用*/
+ 290   3                              if(buz_on==0)
+ 291   3                  {
+ 292   4                      display();      
+ 293   4                  }
+ 294   3              }
+ 295   2              
+ 296   2              WorkPro();
+ 297   2              RO_CLEAN_check();
+ 298   2              RO_SIGN_chuli();
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 6   
 
- 299          
- 300          static void Scan_500ms(void)
- 301          {
- 302   1          if(F_500MS == 1)
- 303   1          {
- 304   2             F_500MS = 0;
- 305   2             
- 306   2      //        if(F_WaterProduction == 1)
- 307   2      //        {
- 308   2      //        
- 309   2      //        }
- 310   2              TDS_RO_SUM += TDS_RO ;
- 311   2              TDS_YS_SUM += TDS_YS ;
- 312   2              if(++TDS_CNT>=10)
- 313   2              {
- 314   3                  TDS_CNT = 0 ; 
- 315   3                  TDS_RO_avg = TDS_RO_SUM/10 ;
- 316   3                  TDS_YS_avg = TDS_YS_SUM/10 ;
- 317   3                  TDS_RO_SUM = 0 ;
- 318   3                  TDS_YS_SUM = 0 ;
- 319   3              }
- 320   2          }
- 321   1      }
- 322          
- 323          static void Scan_xSEC(void)
- 324          {
- 325   1          if(F_1SEC == 1)
- 326   1          {
- 327   2              F_1SEC = 0;
- 328   2               DIS_TO_MAIN_SEND();
- 329   2              if(CLEAN_TIME_SEC>0)  //冲洗时间自减
- 330   2              {
- 331   3                   CLEAN_TIME_SEC--;
- 332   3              }
- 333   2              else
- 334   2              {
- 335   3                   CLEAN_TIME_SEC=0 ;   
- 336   3              }
- 337   2              
- 338   2              if(++xSEC_FilterOutTime_CNT>=10)  //每10s扫描一次 是否有滤芯到期
- 339   2              {
- 340   3                  xSEC_FilterOutTime_CNT = 0;
- 341   3                  if(work1_hour>=SET_WORK1_HOUR)//第一组滤芯
- 342   3                  {
- 343   4                      F_FilterOutTime = 1;
- 344   4                  }
- 345   3                  if(work2_hour>=SET_WORK2_HOUR)//第二组滤芯
- 346   3                  {
- 347   4                      F_FilterOutTime = 2;
- 348   4                  }
- 349   3                  if(work3_hour>=SET_WORK3_HOUR)//第一组滤芯
- 350   3                  {
- 351   4                      F_FilterOutTime = 3;
- 352   4                  }
- 353   3                  if(work4_hour>=SET_WORK4_HOUR)//第二组滤芯
- 354   3                  {
- 355   4                      F_FilterOutTime = 4;
- 356   4                  }
- 357   3                  
- 358   3                  if(F_FilterOutTime != 0)
- 359   3                  {
- 360   4                      if(F_BEEP2 == 0)
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 7   
+ 299   2          }
+ 300   1      }
+ 301          
+ 302          static void Scan_500ms(void)
+ 303          {
+ 304   1          if(F_500MS == 1)
+ 305   1          {
+ 306   2             F_500MS = 0;
+ 307   2             
+ 308   2      //        if(F_WaterProduction == 1)
+ 309   2      //        {
+ 310   2      //        
+ 311   2      //        }
+ 312   2              TDS_RO_SUM += TDS_RO ;
+ 313   2              TDS_YS_SUM += TDS_YS ;
+ 314   2              if(++TDS_CNT>=10)
+ 315   2              {
+ 316   3                  TDS_CNT = 0 ; 
+ 317   3                  TDS_RO_avg = TDS_RO_SUM/10 ;
+ 318   3                  TDS_YS_avg = TDS_YS_SUM/10 ;
+ 319   3                  TDS_RO_SUM = 0 ;
+ 320   3                  TDS_YS_SUM = 0 ;
+ 321   3              }
+ 322   2          }
+ 323   1      }
+ 324          
+ 325          static void Scan_xSEC(void)
+ 326          {
+ 327   1          if(F_1SEC == 1)
+ 328   1          {
+ 329   2              F_1SEC = 0;
+ 330   2               DIS_TO_MAIN_SEND();
+ 331   2              if(CLEAN_TIME_SEC>0)  //冲洗时间自减
+ 332   2              {
+ 333   3                   CLEAN_TIME_SEC--;
+ 334   3              }
+ 335   2              else
+ 336   2              {
+ 337   3                   CLEAN_TIME_SEC=0 ;   
+ 338   3              }
+ 339   2              
+ 340   2              if(++xSEC_FilterOutTime_CNT>=10)  //每10s扫描一次 是否有滤芯到期
+ 341   2              {
+ 342   3                  xSEC_FilterOutTime_CNT = 0;
+ 343   3                  if(work1_hour>=SET_WORK1_HOUR)//第一组滤芯
+ 344   3                  {
+ 345   4                      F_FilterOutTime = 1;
+ 346   4                  }
+ 347   3                  if(work2_hour>=SET_WORK2_HOUR)//第二组滤芯
+ 348   3                  {
+ 349   4                      F_FilterOutTime = 2;
+ 350   4                  }
+ 351   3                  if(work3_hour>=SET_WORK3_HOUR)//第一组滤芯
+ 352   3                  {
+ 353   4                      F_FilterOutTime = 3;
+ 354   4                  }
+ 355   3                  if(work4_hour>=SET_WORK4_HOUR)//第二组滤芯
+ 356   3                  {
+ 357   4                      F_FilterOutTime = 4;
+ 358   4                  }
+ 359   3                  
+ 360   3                  if(F_FilterOutTime != 0)
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 7   
 
- 361   4                      {
- 362   5                          F_BEEP2 = 1;
- 363   5                          speek_duo(150,50,10);
- 364   5                      }
- 365   4                  }
- 366   3                  else
- 367   3                  {
- 368   4                      F_BEEP2 = 0;
- 369   4                  }
- 370   3              }
- 371   2              
- 372   2              if(F_FilterSet == 1)
- 373   2              {
- 374   3                  if(++xSCE_SetWait_CNT>=15) //15s  进入滤芯复位模式时，如果等待15s无操作，自动退出
- 375   3                  {
- 376   4                      F_FilterSet = 0;
- 377   4                  }
- 378   3              }
- 379   2              else
- 380   2              {
- 381   3                  xSCE_SetWait_CNT = 0;
- 382   3              }
- 383   2          }
- 384   1      }
- 385          
- 386          static void Scan_xMIN(void)
- 387          {
- 388   1          if(F_1MIN == 1)
- 389   1          {
- 390   2              F_1MIN = 0;
- 391   2              
- 392   2              if(F_WaterProduction == 1)
- 393   2              {
- 394   3                  if(++F_WaterProduction_CNT1>=10)
- 395   3                  {
- 396   4                      F_WaterProduction_CNT1 = 0;
- 397   4                      F_WashAccumulateWork_10min = 1;
- 398   4                  }
- 399   3                  
- 400   3                  if(++F_WaterProduction_CNT2>=120)
- 401   3                  {
- 402   4                      F_WaterProduction_CNT2 = 0;
- 403   4                      F_ZHISHUICHAOSHI = 1;
- 404   4                      speek_duo(150,50,5);
- 405   4                  }
- 406   3                  
- 407   3                  if(++work_10min>=10)  //每10min存储1次滤芯寿命时间
- 408   3                  {
- 409   4                      work_10min = 0;
- 410   4                      if(++work_10min>=6)
- 411   4                      {
- 412   5                          work_10min = 0; 
- 413   5                          work1_hour++ ;
- 414   5                          work2_hour++ ; 
- 415   5                          work3_hour++ ;
- 416   5                          work4_hour++ ;
- 417   5                      } 
- 418   4                      EEPROM_WRITE() ; 
- 419   4                  }
- 420   3                      
- 421   3              }
- 422   2              else
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 8   
+ 361   3                  {
+ 362   4                      if(F_BEEP2 == 0)
+ 363   4                      {
+ 364   5                          F_BEEP2 = 1;
+ 365   5                          speek_duo(150,50,10);
+ 366   5                      }
+ 367   4                  }
+ 368   3                  else
+ 369   3                  {
+ 370   4                      F_BEEP2 = 0;
+ 371   4                  }
+ 372   3              }
+ 373   2              
+ 374   2              if(F_FilterSet == 1)
+ 375   2              {
+ 376   3                  if(++xSCE_SetWait_CNT>=15) //15s  进入滤芯复位模式时，如果等待15s无操作，自动退出
+ 377   3                  {
+ 378   4                      F_FilterSet = 0;
+ 379   4                  }
+ 380   3              }
+ 381   2              else
+ 382   2              {
+ 383   3                  xSCE_SetWait_CNT = 0;
+ 384   3              }
+ 385   2          }
+ 386   1      }
+ 387          
+ 388          static void Scan_xMIN(void)
+ 389          {
+ 390   1          if(F_1MIN == 1)
+ 391   1          {
+ 392   2              F_1MIN = 0;
+ 393   2              
+ 394   2              if(F_WaterProduction == 1)
+ 395   2              {
+ 396   3                  if(++F_WaterProduction_CNT1>=10)
+ 397   3                  {
+ 398   4                      F_WaterProduction_CNT1 = 0;
+ 399   4                      F_WashAccumulateWork_10min = 1;
+ 400   4                  }
+ 401   3                  
+ 402   3                  if(++F_WaterProduction_CNT2>=120)
+ 403   3                  {
+ 404   4                      F_WaterProduction_CNT2 = 0;
+ 405   4                      F_ZHISHUICHAOSHI = 1;
+ 406   4                      speek_duo(150,50,5);
+ 407   4                  }
+ 408   3                  
+ 409   3                  if(++work_10min>=10)  //每10min存储1次滤芯寿命时间
+ 410   3                  {
+ 411   4                      work_10min = 0;
+ 412   4                      if(++work_10min>=6)
+ 413   4                      {
+ 414   5                          work_10min = 0; 
+ 415   5                          work1_hour++ ;
+ 416   5                          work2_hour++ ; 
+ 417   5                          work3_hour++ ;
+ 418   5                          work4_hour++ ;
+ 419   5                      } 
+ 420   4                      EEPROM_WRITE() ; 
+ 421   4                  }
+ 422   3                      
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 8   
 
- 423   2              {
- 424   3                  F_WaterProduction_CNT2 = 0;
- 425   3              }
- 426   2          }
- 427   1      }
- 428          
- 429          
- 430          static void Scan_xHour(void)
- 431          {
- 432   1          if(F_1HOUR == 1)
- 433   1          {
- 434   2              F_1HOUR = 0;
- 435   2              if(F_WaterProduction == 0)
- 436   2              {
- 437   3                  if(++F_WaterFull_CNT>=4)
- 438   3                  {
- 439   4                      F_WaterFull_CNT = 0;
- 440   4                      F_WashAccumulateFull_4h = 1;
- 441   4                  }
- 442   3              }
- 443   2              
- 444   2          }
- 445   1      }
- 446          
- 447          
- 448          void Check_Leak(void)//漏水检测 10ms调用一次
- 449          {
- 450   1          
- 451   1             if(P0_3 == 0)
- 452   1             {
- 453   2                 if(++Tim_cnt>=500)
- 454   2                  {
- 455   3                      Tim_cnt=500;
- 456   3                      F_LOUSHUI=1;
- 457   3                      
- 458   3                      if(F_BEEP1 == 0)
- 459   3                      {
- 460   4                          F_BEEP1 = 1;
- 461   4                          speek_duo(150,50,5);
- 462   4                      }
- 463   3      
- 464   3                  }
- 465   2             }
- 466   1             else
- 467   1                      {
- 468   2                              Tim_cnt=0;
- 469   2                  F_BEEP1 = 0;
- 470   2                      }
- 471   1      }
- 472          //===============================================================================
- 473          void Fun_Handle(void)
- 474          {
- 475   1          CLR_WDT;
- 476   1          TIMER_SCAN();  //定时器基数，分出 1ms、10ms、100ms、500ms、1s、1min、1h
- 477   1          JudgeOneStringEnd();
- 478   1          
- 479   1          Scan_1ms();
- 480   1          Scan_10ms();
- 481   1          Scan_100ms();
- 482   1          Scan_500ms();
- 483   1          Scan_xSEC();
- 484   1          Scan_xMIN();
-C51 COMPILER V9.00   FUN_HANDLE                                                            04/16/2024 09:50:47 PAGE 9   
+ 423   3              }
+ 424   2              else
+ 425   2              {
+ 426   3                  F_WaterProduction_CNT2 = 0;
+ 427   3              }
+ 428   2          }
+ 429   1      }
+ 430          
+ 431          
+ 432          static void Scan_xHour(void)
+ 433          {
+ 434   1          if(F_1HOUR == 1)
+ 435   1          {
+ 436   2              F_1HOUR = 0;
+ 437   2              if(F_WaterProduction == 0)
+ 438   2              {
+ 439   3                  if(++F_WaterFull_CNT>=4)
+ 440   3                  {
+ 441   4                      F_WaterFull_CNT = 0;
+ 442   4                      F_WashAccumulateFull_4h = 1;
+ 443   4                  }
+ 444   3              }
+ 445   2              
+ 446   2          }
+ 447   1      }
+ 448          
+ 449          
+ 450          void Check_Leak(void)//漏水检测 10ms调用一次
+ 451          {
+ 452   1          
+ 453   1             if(P0_3 == 0)
+ 454   1             {
+ 455   2                 if(++Tim_cnt>=500)
+ 456   2                  {
+ 457   3                      Tim_cnt=500;
+ 458   3                      F_LOUSHUI=1;
+ 459   3                      
+ 460   3                      if(F_BEEP1 == 0)
+ 461   3                      {
+ 462   4                          F_BEEP1 = 1;
+ 463   4                          speek_duo(150,50,5);
+ 464   4                      }
+ 465   3      
+ 466   3                  }
+ 467   2             }
+ 468   1             else
+ 469   1                      {
+ 470   2                              Tim_cnt=0;
+ 471   2                  F_BEEP1 = 0;
+ 472   2                      }
+ 473   1      }
+ 474          //===============================================================================
+ 475          void Fun_Handle(void)
+ 476          {
+ 477   1          CLR_WDT;
+ 478   1          TIMER_SCAN();  //定时器基数，分出 1ms、10ms、100ms、500ms、1s、1min、1h
+ 479   1          JudgeOneStringEnd();
+ 480   1          
+ 481   1          Scan_1ms();
+ 482   1          Scan_10ms();
+ 483   1          Scan_100ms();
+ 484   1          Scan_500ms();
+C51 COMPILER V9.00   FUN_HANDLE                                                            04/18/2024 20:31:04 PAGE 9   
 
- 485   1          Scan_xHour();
- 486   1      }
+ 485   1          Scan_xSEC();
+ 486   1          Scan_xMIN();
+ 487   1          Scan_xHour();
+ 488   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    934    ----
+   CODE SIZE        =    937    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      6    ----
    PDATA SIZE       =   ----    ----

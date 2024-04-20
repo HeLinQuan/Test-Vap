@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   AD_TDS                                                                04/16/2024 09:50:47 PAGE 1   
+C51 COMPILER V9.00   AD_TDS                                                                04/18/2024 20:31:03 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE AD_TDS
@@ -6,8 +6,8 @@ OBJECT MODULE PLACED IN .\Output\AD_TDS.obj
 COMPILER INVOKED BY: F:\KEIL5\C51\BIN\C51.EXE ..\..\Application\AD_WORK\AD_TDS.C OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\A
                     -pplication;..\..\User\INC;..\..\Libraries;..\..\Application\Buzzer_Driver;..\..\Application;..\..\Application\DISPLAY;..
                     -\..\Application\TM1652;..\..\Application\WDT;..\..\Application\TIMER;..\..\Application\EEPROM_R_W;..\..\Application\AD_W
-                    -ORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART) DEBUG OBJECTEXTEND PRINT(.\List\AD_TDS.l
-                    -st) OBJECT(.\Output\AD_TDS.obj)
+                    -ORK;..\..\Application\Fun_Handle;..\..\Application\KEY;..\..\Application\USART;..\..\Application\RS485-Modbus) DEBUG OBJ
+                    -ECTEXTEND PRINT(.\List\AD_TDS.lst) OBJECT(.\Output\AD_TDS.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   48   2                                      ad_cnt2 = 0 ;   
   49   2                                      for(j=0 ;j<9 ; j++)    
   50   2                                      {
-C51 COMPILER V9.00   AD_TDS                                                                04/16/2024 09:50:47 PAGE 2   
+C51 COMPILER V9.00   AD_TDS                                                                04/18/2024 20:31:03 PAGE 2   
 
   51   3                                                                      for(i= 0 ; i<(10-j) ; i++)
   52   3                                                                      {
@@ -126,7 +126,7 @@ line level    source
  110   2                                      else if(TDS_YS<195)
  111   2                                      {
  112   3                                                TDS_YS=TDS_YS+TDS_YS*0.7 ;
-C51 COMPILER V9.00   AD_TDS                                                                04/16/2024 09:50:47 PAGE 3   
+C51 COMPILER V9.00   AD_TDS                                                                04/18/2024 20:31:03 PAGE 3   
 
  113   3                                      }
  114   2                                else if(TDS_YS<210)
@@ -190,7 +190,7 @@ line level    source
  172   3                                                TDS_YS=TDS_YS+TDS_YS*2.5 ;
  173   3                                      }
  174   2                                      else if(TDS_YS<325)
-C51 COMPILER V9.00   AD_TDS                                                                04/16/2024 09:50:47 PAGE 4   
+C51 COMPILER V9.00   AD_TDS                                                                04/18/2024 20:31:03 PAGE 4   
 
  175   2                                      {
  176   3                                                TDS_YS=TDS_YS+TDS_YS*2.8 ;
@@ -254,7 +254,7 @@ line level    source
  234   2                                      {
  235   3                                                                      temp_ttt+= TEMP_BUFF[i] ;
  236   3                                      }
-C51 COMPILER V9.00   AD_TDS                                                                04/16/2024 09:50:47 PAGE 5   
+C51 COMPILER V9.00   AD_TDS                                                                04/18/2024 20:31:03 PAGE 5   
 
  237   2                                      TDS_RO=((temp_ttt/8)*1.1) ;
  238   2                                      if(TDS_RO>=99)
